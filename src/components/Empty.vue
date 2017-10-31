@@ -79,19 +79,19 @@ export default {
             var mon = month - 1;
             var d = new Date(year, mon);
       
-            // var clearDay = 0 //количество дней, которые нужно пропустить
+            //дни которые нужно пропустить
             self.items[0] = []
 
             for (var i = 0; i < self.getDay(d); i++) {
                 self.items[0].push({})
-                // clearDay ++
             }
 
             // ячейки календаря с датами
             var row = 0
             while (d.getMonth() == mon) {
+              var den = new Date(self.currYear, self.currMonth, d.getDate())
+              console.log(den)
                 self.items[row].push({inner: d.getDate()})
-              
               if (self.getDay(d) % 7 == 6) { // вс, последний день - перевод строки
                 row ++
                 self.items[row] = []
@@ -100,7 +100,7 @@ export default {
               d.setDate(d.getDate() + 1);
             }
             self.refreshed = false
-            console.log(self.items)
+            // console.log(self.items)
         },
         getDay: function(date) { // получить номер дня недели, от 0(пн) до 6(вс)
             var self = this
@@ -200,6 +200,7 @@ export default {
     setActiveRoom: function(id){
       var self = this
       self.activeRoomId = id
+      self.getEvents()
       console.log(self.activeRoomId)
     }   
     
