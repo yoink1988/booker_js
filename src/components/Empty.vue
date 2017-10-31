@@ -4,17 +4,27 @@
     <table>
       <thead>
         <tr>
-          <td>‹</td>
-          <td  colspan="5">{{lang_month}}</td>
-          <td>›</td>
+        <td @click="monthMinus()">‹</td>
+        <td colspan="5">{{months_en[currMonth-1]}} {{currYear}}</td>
+          <td @click="monthPlus()">›</td>
         </tr>
-        <tr><td>Пн</td><td>Вт</td><td>Ср</td><td>Чт</td><td>Пт</td><td>Сб</td><td>Вс</td></tr>
       </thead>
       <tbody>
-        <!-- <tr v-for=""></tr> -->
+        <tr v-if="firstDayMonday"><td>пн</td><td>вт</td><td>ср</td><td>чт</td><td>пт</td><td>сб</td><td>вс</td></tr>
+        <tr v-if="!firstDayMonday"><td>вс</td><td>пн</td><td>вт</td><td>ср</td><td>чт</td><td>пт</td><td>сб</td></tr>
+
+        <tr v-for="row in calendarToDraw">
+            <td v-for="day in row">
+                {{day.inner}}
+            </td>
+        </tr>
+
       </tbody>
     </table>
-  </div>
+
+    <button @click="setWeekFirstDay()" class="day-switch">WeekFromSunday</button>
+</div>
+
 </template>
 
 <script>
@@ -22,27 +32,108 @@ export default {
   name: 'Empty',
   data () {
     return {
-      date: '',
-      lang_month: 'MONTH'
+      months_en : ['January','February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+      refreshed: false,
+      currMonth: '',
+      currYear: '',
+      firstDayMonday: true,
+      myCalendar: '',
+      items: [],
     }
   },
   methods:{
-    calendar: function (year, month){
-      var Dlast = new Date(year,month+1,0).getDate()
-      self.days = Array(+Dlast).fill('-');
-      var D = new Date(year,month,Dlast)
-      var DNlast = new Date(D.getFullYear(),D.getMonth(),Dlast).getDay()
-      var DNfirst = new Date(D.getFullYear(),D.getMonth(),1).getDay()
+         createCalendar: function() {
+            var self = this
+            var year = self.currYear
+            var month = self.currMonth
+            var mon = month - 1;
+            var d = new Date(year, mon);
+      
+            var clearDay = 0 //количество дней, которые нужно пропустить
+            self.items[0] = []
 
-      console.log(Dlast)
-      console.log(D)
-      console.log(DNlast)
-      console.log(DNfirst)
-      console.log(self.days)
+            for (var i = 0; i < self.getDay(d); i++) {
+                self.items[0].push({})
+                clearDay ++
+            }
+
+            // ячейки календаря с датами
+            var row = 0
+            while (d.getMonth() == mon) {
+                self.items[row].push({inner: d.getDate()})
+              
+              if (self.getDay(d) % 7 == 6) { // вс, последний день - перевод строки
+                row ++
+                self.items[row] = []
+              }
+      
+              d.setDate(d.getDate() + 1);
+            }
+            self.refreshed = false
+        },
+        getDay: function(date) { // получить номер дня недели, от 0(пн) до 6(вс)
+            var self = this
+              var day = date.getDay();
+              if(self.firstDayMonday){
+                if (day == 0) day = 7;
+                return day - 1;
+            }else{
+              return day 
+            }
+
+    },
+    getMonth: function(){
+      var self = this
+      self.currMonth = new Date().getMonth()+1
+    }, 
+    getYear: function(){
+      var self = this
+      self.currYear = new Date().getFullYear()
+    }, 
+    monthPlus: function(){
+      var self = this
+      self.items = []
+      if(self.currMonth < 12){
+        self.currMonth++
+      }else{
+        self.currYear++
+        self.currMonth = 1
+      }
+      self.createCalendar()
+    },
+    monthMinus: function(){
+      var self = this
+      self.items = []
+      if(self.currMonth > 1){
+        self.currMonth--
+      }else{
+        self.currYear--
+        self.currMonth = 12
+      }
+      self.createCalendar()
+    },
+    setWeekFirstDay: function(){
+      var self = this
+      self.firstDayMonday = !self.firstDayMonday
+      self.refreshed = false
+      self.items = []
+      self.createCalendar()
     }
   },
   created(){
-    this.calendar(new Date().getFullYear(), new Date().getMonth())
+    this.getMonth()
+    this.getYear()
+    this.createCalendar()
+  },
+  computed:{
+    calendarToDraw(){
+      var self = this
+      if(!self.refreshed){
+      var calendar = self.items
+        self.refreshed = true
+      }
+      return calendar
+    }
   }
 }
 </script>
