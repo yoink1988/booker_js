@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Empty from '@/components/Empty'
+import Home from '@/components/Home'
 import Auth from '@/components/Auth'
 
 Vue.use(Router)
@@ -8,12 +8,13 @@ Vue.use(Router)
 export default new Router({
   routes: [
     {
-      path: '/',
-      name: 'Empty',
-      component: Empty
+      path: '/home',
+      name: 'Home',
+      component: Home,
+      // props: ['user']      
     },
     {
-      path: '/Auth',
+      path: '/',
       name: 'Auth',
       component: Auth
     }

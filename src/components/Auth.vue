@@ -3,41 +3,72 @@
       <div id="auth-form" class="col-md-5" style="width:400px">
       <form role="form ">
       <div class="form-group">
-        <label for="exampleInputName">Name</label>
-        <input v-model="name" type="text" class="form-control" id="exampleInputPassword1" placeholder="Name">
+        <label for="exampleInputEmail1">Email</label>
+        <input v-model="email" type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">
       </div>
       <div class="form-group">
         <label for="exampleInputPassword1">Password</label>
         <input v-model="pass" type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
       </div>
-      <button @click="submit()" class="btn btn-default">Submit</button>
+      <button @click="login()" class="btn btn-default">Submit</button>
           <p style="padding:10px">{{msg}}</p>
     </form>
+    <router-link to="/home" :user="user">Home</router-link>
   </div>
   </div>
 
 </template>
 
 <script>
+import Home from './Home.vue'
 export default {
   name: 'Auth',
   data () {
     return {
-      name:'',
+      email:'',
       pass:'',
-      msg:''
+      msg:'',
+      user:'qwe'
     }
   },
   methods:{
-  
-    
+      login: function(){
+      var self = this
+      if(self.email && self.pass){
+      self.msg = ''
+      var xhr = new XMLHttpRequest();
+      var json = JSON.stringify({
+         login: self.email,
+         pass: self.pass
+      });
+          xhr.open("PUT", getUrl()+'auth/', true)
+          xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState != 4) return
+                  if (xhr.status != 200) {
+                        alert(xhr.status + ': ' + xhr.statusText)
+                  } else {
+                    var res = JSON.parse(xhr.responseText)
+                    if(!res)
+                    {
+                      self.msg = 'Wrong login or password'
+                    }
+                    else
+                    {
+                      self.user = res[0]
+                      localStorage['user'] = JSON.stringify({id: self.user.id, hash: self.user.hash})
+                      self.$router.push( { name: 'Home'})
+                    }
+                  }
+            }
+          xhr.send(json)
+        }
+        else{
+          self.msg = 'Wrong login or password'
+        }
+      },
   },
-  created(){
 
-  },
-  computed:{
-
-  }
 }
 </script>
 

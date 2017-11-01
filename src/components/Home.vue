@@ -4,11 +4,15 @@
     <button @click="test()" class="switch">Test</button>
     <div class="row">
       <ul>
-        <li v-for="room in rooms"><a href="#" @click="setActiveRoom(room.id)">{{room.name}}</a></li>
+        <li v-for="room in rooms"><a class="link" @click="setActiveRoom(room.id)">{{room.name}}</a></li>
       </ul>
     </div>
+    <div v-if="activeRoomId" class="row">
+      <span class="active-room">{{rooms[activeRoomId-1].name}}</span>
+      <p><a class="link" @click="bookIt()">Book It!</a></p>
+    </div>
     <div class="calendar col cal-block">
-    <table class="table">
+    <table class="table table-bordered">
       <thead>
         <tr>
         <td @click="monthMinus()">‹</td>
@@ -22,7 +26,11 @@
 
         <tr v-for="row in calendarToDraw">
             <td v-for="day in row">
-                {{day.inner}}
+               <!-- <p>{{day[0]}}</p> -->
+               <p v-if="day.length > 1">{{day[0]}}</p>
+               <p v-for="event in day[1]"> <a @click="makePopUp(event)" class="link">{{event.timeString}}</a> </p>
+               <p v-if="day.length == 1">{{day[0]}}</p>
+
             </td>
         </tr>
 
@@ -39,7 +47,6 @@ export default {
   name: 'Main',
   data () {
     return {
-      lang: 'en',
       months_en : ['January','February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
       refreshed: false,
       currMonth: '',
@@ -49,35 +56,62 @@ export default {
       items: [],
       translateArray: {},
       rooms:[],
-      events:[]
+      events:[],
+      user:{},
+      activeRoomId:''
     }
   },
   methods:{
     test:function(){
       var self = this
-      self.events.forEach(function(el){
-        var start = new Date()
-        start.setTime(Date.parse(el.start))
-        // console.log(start.getHours())
-        // console.log(start.getMinutes())
-        var startString = start.getHours()+':'+start.getMinutes()
-        var end = new Date()
-        end.setTime(Date.parse(el.end))
-        var endString = end.getHours()+':'+end.getMinutes()
-        console.log(startString+' -- ' + endString)
-        // console.log(end.getHours())
-        // console.log(end.getMinutes())        
-        // var testDate = new Date()
-        // testDate.setDate(self.currYear, self.currMonth, 31)
-        // console.log(testDate)
-      })
+      console.log(self.user)
     },
+    makePopUp: function(event){
+      var self = this
+      alert(event.id)
+    },
+    bookIt: function (){
+      var self = this
+      alert('Booookaem komnatu '+self.activeRoomId)
+    },
+       getStorageData: function(){
+        var self = this
+        if(localStorage['user']){
+         self.user = JSON.parse(localStorage['user'])
+         self.checkAuth(self.user.id, self.user.hash)
+        }else{
+          self.$router.push('/')
+        }
+
+      },
+      checkAuth: function(id, hash){
+      var self = this
+      var xhr = new XMLHttpRequest()
+          xhr.open("GET", getUrl()+'auth/', true)
+          xhr.setRequestHeader("Authorization", "Basic " + btoa(id+":"+hash));
+          xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState != 4) return
+                  if (xhr.status != 200) {
+                  } else{
+                   var res = JSON.parse(xhr.responseText)
+                   if(!res){
+                     self.$router.push('/')
+                   }
+                   else{
+                    //getUserData
+                   }
+                  }
+            }
+          xhr.send()        
+      },
          createCalendar: function() {
             var self = this
             var year = self.currYear
             var month = self.currMonth
             var mon = month - 1;
             var d = new Date(year, mon);
+              // console.log(month)
       
             //дни которые нужно пропустить
             self.items[0] = []
@@ -89,9 +123,7 @@ export default {
             // ячейки календаря с датами
             var row = 0
             while (d.getMonth() == mon) {
-              var den = new Date(self.currYear, self.currMonth, d.getDate())
-              console.log(den)
-                self.items[row].push({inner: d.getDate()})
+                self.items[row].push( [ d.getDate() ] )
               if (self.getDay(d) % 7 == 6) { // вс, последний день - перевод строки
                 row ++
                 self.items[row] = []
@@ -100,7 +132,6 @@ export default {
               d.setDate(d.getDate() + 1);
             }
             self.refreshed = false
-            // console.log(self.items)
         },
         getDay: function(date) { // получить номер дня недели, от 0(пн) до 6(вс)
             var self = this
@@ -130,7 +161,7 @@ export default {
         self.currYear++
         self.currMonth = 1
       }
-      self.createCalendar()
+      self.getEvents()
     },
     monthMinus: function(){
       var self = this
@@ -141,7 +172,7 @@ export default {
         self.currYear--
         self.currMonth = 12
       }
-      self.createCalendar()
+      self.getEvents()
     },
     setWeekFirstDay: function(){
       var self = this
@@ -155,73 +186,104 @@ export default {
       self.translateArray = getTrans()
     },
     getRooms: function(){
+
       var self = this
-        self.xhr.open('GET', getUrl()+'rooms/', true)
-          self.xhr.onreadystatechange = function() {
-            if (self.xhr.readyState != 4) return
-              if (self.xhr.status != 200) {
-                alert(self.xhr.status + ': ' + self.xhr.statusText)
+      var xhr = new XMLHttpRequest()
+        xhr.open('GET', getUrl()+'rooms/', true)
+          xhr.onreadystatechange = function() {
+            if (xhr.readyState != 4) return
+              if (xhr.status != 200) {
+                alert(xhr.status + ': ' + xhr.statusText)
               } else {
-                var res = JSON.parse(self.xhr.responseText)
+                var res = JSON.parse(xhr.responseText)
                 if(res){
                   self.rooms = res
-                  self.activeRoomId = self.rooms[0].id
+                  self.setActiveRoom(self.rooms[0].id)
                   self.getEvents()
                 }else{
                   self.errMsg = 'Rooms not found'
                 }
               }
         }
-        self.xhr.send();
-    },
-    getXhr:function(){
-      var self = this
-      self.xhr = new XMLHttpRequest()
+        xhr.send();
     },
     getEvents: function(){
       var self = this
-        self.xhr.open('GET', getUrl()+'events/year/'+self.currYear+'/month/'+self.currMonth+'/room/'+self.activeRoomId, true)
-          self.xhr.onreadystatechange = function() {
-            if (self.xhr.readyState != 4) return
-              if (self.xhr.status != 200) {
-                alert(self.xhr.status + ': ' + self.xhr.statusText)
+        var xhr = new XMLHttpRequest()
+        xhr.open('GET', getUrl()+'events/year/'+self.currYear+'/month/'+self.currMonth+'/room/'+self.activeRoomId, true)
+          xhr.onreadystatechange = function() {
+            if (xhr.readyState != 4) return
+              if (xhr.status != 200) {
+                alert(xhr.status + ': ' + xhr.statusText)
               } else {
-                var res = JSON.parse(self.xhr.responseText)
+                var res = JSON.parse(xhr.responseText)
                 if(res){
                   self.events = res
-                  console.log(self.events)
                 }else{
                   self.events = []
                 }
+                  self.createCalendar()
               }
         }
-        self.xhr.send();
+        xhr.send();
     },   
     setActiveRoom: function(id){
       var self = this
       self.activeRoomId = id
       self.getEvents()
-      console.log(self.activeRoomId)
     }   
     
   },
   created(){
+    this.getStorageData()
     this.getMonth()
     this.getYear()
-    this.getXhr()
     this.getRooms()
-    this.createCalendar()
-    // console.log(this.currYear)
-    // console.log(this.currMonth)
+
   },
   computed:{
     calendarToDraw(){
       var self = this
       if(!self.refreshed){
       var calendar = self.items
+
+     calendar.forEach(function(week){
+        week.forEach(function(day){
+          if(day[0]){
+          var d = new Date(self.currYear, self.currMonth-1, day[0])
+          // var ev = self.events
+            self.events.forEach(function(ev){
+              var ed = new Date(ev.start)
+              if(d.toDateString() == ed.toDateString()){
+                
+                var st_h = new Date(ev.start).getHours()
+                var st_m = new Date(ev.start).getMinutes()
+                var en_h = new Date(ev.end).getHours()
+                var en_m = new Date(ev.end).getMinutes()
+
+                if(st_m == '0'){
+                  st_m = '00'
+                }
+                if(en_m == '0'){
+                  en_m = '00'
+                }
+                ev.timeString = st_h+':'+st_m+' - '+en_h+':'+en_m
+
+                if(day.length == 1){
+                 day.push([ev])
+                }else{
+                  day[1].push(ev)
+                }
+                //  console.log(day)
+              }
+            })
+          }
+        })
+      })
+
         self.refreshed = true
       }
-      return calendar
+       return calendar
     }
   }
 }
@@ -252,5 +314,12 @@ a {
 }
 .cal-block{
   width: 1000px;
+}
+.link{
+  cursor: pointer;
+}
+.active-room{
+  font-size: 130%;
+
 }
 </style>
