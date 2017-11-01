@@ -2,6 +2,7 @@
   <div class="row">
     <button @click="setWeekFirstDay()" class="day-switch">WeekFromSunday</button>
     <button @click="test()" class="switch">Test</button>
+    <router-link to="/employees">Employee List</router-link>
     <div class="row">
       <ul>
         <li v-for="room in rooms"><a class="link" @click="setActiveRoom(room.id)">{{room.name}}</a></li>
@@ -181,12 +182,7 @@ export default {
       self.items = []
       self.createCalendar()
     },
-    getTranslate: function (){
-      var self = this
-      self.translateArray = getTrans()
-    },
     getRooms: function(){
-
       var self = this
       var xhr = new XMLHttpRequest()
         xhr.open('GET', getUrl()+'rooms/', true)
