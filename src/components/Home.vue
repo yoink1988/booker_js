@@ -1,8 +1,17 @@
 <template>
   <div class="row">
+
+    <div v-if="content == ''">
+      <login-section></login-section>
+    </div>
+
+  <div v-if="content == 'calendar'">  
     <button @click="setWeekFirstDay()" class="day-switch">WeekFromSunday</button>
     <button @click="test()" class="switch">Test</button>
-    <router-link to="/employees">Employee List</router-link>
+    <button @click="logOut()" class="switch">Log Out</button>
+    <div v-if="user.id_role == 2">
+      <router-link to="/employees">Employee List</router-link>
+    </div>
     <div class="row">
       <ul>
         <li v-for="room in rooms"><a class="link" @click="setActiveRoom(room.id)">{{room.name}}</a></li>
@@ -13,37 +22,42 @@
       <p><a class="link" @click="bookIt()">Book It!</a></p>
     </div>
     <div class="calendar col cal-block">
-    <table class="table table-bordered">
-      <thead>
-        <tr>
-        <td @click="monthMinus()">‹</td>
-        <td colspan="5">{{months_en[currMonth-1]}} {{currYear}}</td>
-          <td @click="monthPlus()">›</td>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-if="firstDayMonday"><td>пн</td><td>вт</td><td>ср</td><td>чт</td><td>пт</td><td>сб</td><td>вс</td></tr>
-        <tr v-if="!firstDayMonday"><td>вс</td><td>пн</td><td>вт</td><td>ср</td><td>чт</td><td>пт</td><td>сб</td></tr>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+          <td @click="monthMinus()">‹</td>
+          <td colspan="5">{{months_en[currMonth-1]}} {{currYear}}</td>
+            <td @click="monthPlus()">›</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-if="firstDayMonday"><td>пн</td><td>вт</td><td>ср</td><td>чт</td><td>пт</td><td>сб</td><td>вс</td></tr>
+          <tr v-if="!firstDayMonday"><td>вс</td><td>пн</td><td>вт</td><td>ср</td><td>чт</td><td>пт</td><td>сб</td></tr>
 
-        <tr v-for="row in calendarToDraw">
-            <td v-for="day in row">
-               <!-- <p>{{day[0]}}</p> -->
-               <p v-if="day.length > 1">{{day[0]}}</p>
-               <p v-for="event in day[1]"> <a @click="makePopUp(event)" class="link">{{event.timeString}}</a> </p>
-               <p v-if="day.length == 1">{{day[0]}}</p>
-
-            </td>
-        </tr>
-
-      </tbody>
-    </table>
-
+          <tr v-for="row in calendarToDraw">
+              <td v-for="day in row">
+                <!-- <p>{{day[0]}}</p> -->
+                <p v-if="day.length > 1">{{day[0]}}</p>
+                <p v-for="event in day[1]"> <a @click="makePopUp(event)" class="link">{{event.timeString}}</a> </p>
+                <p v-if="day.length == 1">{{day[0]}}</p>
+              </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
+  
+  </div>
+  <div v-if="content == 'bookit'">
+      <bookit-section :user="user" :idRoom="activeRoomId"></bookit-section>
+  </div>
+
 </div>
 
 </template>
 
 <script>
+import Login from './Login.vue'
+import BookIt from './BookIt.vue'
 export default {
   name: 'Main',
   data () {
@@ -59,13 +73,20 @@ export default {
       rooms:[],
       events:[],
       user:{},
-      activeRoomId:''
+      activeRoomId:'',
+      content: 'calendar',
+      isAdmin:false
     }
+  },
+  components:{
+    'login-section' : Login,
+    'bookit-section' : BookIt
   },
   methods:{
     test:function(){
       var self = this
-      console.log(self.user)
+      // console.log(ADMIN)
+      // console.log(self.id_role)
     },
     makePopUp: function(event){
       var self = this
@@ -73,7 +94,8 @@ export default {
     },
     bookIt: function (){
       var self = this
-      alert('Booookaem komnatu '+self.activeRoomId)
+      self.content = 'bookit'
+      // alert('Booookaem komnatu '+self.activeRoomId)
     },
        getStorageData: function(){
         var self = this
@@ -81,7 +103,7 @@ export default {
          self.user = JSON.parse(localStorage['user'])
          self.checkAuth(self.user.id, self.user.hash)
         }else{
-          self.$router.push('/')
+          self.content = ''
         }
 
       },
@@ -97,14 +119,50 @@ export default {
                   } else{
                    var res = JSON.parse(xhr.responseText)
                    if(!res){
-                     self.$router.push('/')
+                     self.content = ''
                    }
                    else{
-                    //getUserData
+                    self.getUserInfo()
                    }
                   }
             }
           xhr.send()        
+      },
+      getUserInfo: function(){
+      var self = this
+      var xhr = new XMLHttpRequest();
+          xhr.open("GET", getUrl()+'users/'+self.user.id, true)
+          xhr.setRequestHeader("Authorization", "Basic " + btoa(self.user.id+":"+self.user.hash));
+          xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState != 4) return
+                  if (xhr.status != 200) {
+                  } else{
+                      var res = JSON.parse(xhr.responseText)
+                      if(!res){
+                        self.content = ''
+                      }
+                      else{
+                        self.user = res[0]
+                        // console.log(self.user)
+                      }
+                  self.checkRole()
+                  }
+            }
+          xhr.send()  
+      },
+      checkRole: function(){
+        var self = this
+        if(self.user.id_role == ADMIN){
+        self.isAdmin = true
+          }else{
+          self.isAdmin = false
+        }
+      },
+      logOut: function(){
+        var self = this
+        delete localStorage['user']
+        self.getStorageData()        
       },
          createCalendar: function() {
             var self = this

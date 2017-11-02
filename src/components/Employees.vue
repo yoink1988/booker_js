@@ -9,6 +9,9 @@
     <div v-if="content == 'add'">
       <add-section :user="user"></add-section>
     </div>
+    <div v-if="content == 'edit'">
+      <edit-section :user="user" :employee="employeeToEdit"></edit-section>
+    </div>
     <div v-if="content == 'list'">
       <div v-if="employees" class="row">
         <div class="col content">
@@ -21,7 +24,7 @@
                   <a :href="'mailto:' + emp.email">{{emp.name}}</a>
                 </td>
                 <td>
-                  <a class="link" @click="edit(emp.id)">Edit</a>
+                  <a class="link" @click="edit(emp)">Edit</a>
                 </td>
                 <td>
                   <a class="link" @click="remove(emp.id)">Remove</a>
@@ -41,6 +44,7 @@
 
 <script>
 import AddEmployee from './AddEmployee.vue'
+import EditEmployee from './EditEmployee.vue'
 export default {
   name: 'Employees',
   data () {
@@ -48,7 +52,8 @@ export default {
       employees:[],
       user:{},
       msg: '',
-      content: 'list'
+      content: 'list',
+      employeeToEdit:''
     }
   },
   created(){
@@ -56,7 +61,8 @@ export default {
     this.getEmployees()
   },
   components:{
-    'add-section' : AddEmployee
+    'add-section' : AddEmployee,
+    'edit-section' : EditEmployee
   },
   methods:{
      getStorageData: function(){
@@ -97,6 +103,7 @@ export default {
       var self = this
         var xhr = new XMLHttpRequest()
         xhr.open('GET', getUrl()+'users/', true)
+        xhr.setRequestHeader("Authorization", "Basic " + btoa(self.user.id+":"+self.user.hash));        
           xhr.onreadystatechange = function() {
             if (xhr.readyState != 4) return
               if (xhr.status != 200) {
@@ -113,7 +120,14 @@ export default {
               }
         }
         xhr.send();
-    },      
+    }, 
+    edit: function(employee){
+      var self = this
+      console.log(employee)
+      self.employeeToEdit = employee
+      self.content = 'edit'
+      
+    }
 
   },
 

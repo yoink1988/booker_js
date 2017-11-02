@@ -4,10 +4,11 @@ var urlHome = 'http://localhost/booker/client/api/'
 var urlClass = 'http://192.168.0.15/~user9/booker/client/api/'
 
 function getUrl(){
-  return urlClass
+  return urlHome
 }
 
-
+const ADMIN = '2'
+const USER = '1'
 
  
 var months_en = ['January','February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']

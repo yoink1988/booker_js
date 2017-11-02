@@ -28,7 +28,7 @@ export default {
       email:'',
       pass:'',
       msg:'',
-      user:'qwe'
+      user:''
     }
   },
   methods:{
@@ -57,7 +57,8 @@ export default {
                     {
                       self.user = res[0]
                       localStorage['user'] = JSON.stringify({id: self.user.id, hash: self.user.hash})
-                      self.$router.push( { name: 'Home'})
+                      self.$parent.content = 'calendar'
+                      self.$parent.getStorageData()
                     }
                   }
             }

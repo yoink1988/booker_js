@@ -1,6 +1,109 @@
 <template>
   <div class="book-it">
+    <div class="row">
+      <div class="col form">
+        <div>
+          Book for:
+          <select v-model="userToBook" >
+            <option value="">select user</option>
+            <option v-for="emp in employees" :value="emp.id">{{emp.name}}</option>
+          </select>
+        </div>
+        <div>
+          YEAR:<select v-model="selectedYear">
+            <option value="">Year</option>
+            <option v-for="year in yearSelector" :value="year.value">{{year.title}}</option>
+          </select>
+        </div>
+        <div>
+          MONTH:<select v-model="selectedMonth">
+            <option value="">Month</option>
+            <option v-for="mon in monthSelector" :value="mon.value">{{mon.title}}</option>
+          </select>
+        </div>
+        <div>
+          DAY:<select v-model="selectedDay">
+            <option value="">Day</option>
+            <option v-for="day in daySelector" :value="day.value">{{day.title}}</option>
+          </select>
+        </div>
 
+        
+
+        START
+        <div>
+          <select v-model="timeStartH">
+            <option value="">HH</option>
+            <option v-for="h in hoursSelector" :value="h.value">{{h.title}}</option>
+          </select>
+        </div>
+        <div>
+          <select v-model="timeStartM">
+            <option value="">MM</option>
+            <option v-for="m in minutesSelector" :value="m.value">{{m.title}}</option>
+          </select>
+        </div>
+        <div v-if="timeFormat == '12'">
+          <select v-model="modeStart">
+            <option :value="mode[0]">{{mode[0]}}</option>
+            <option :value="mode[1]">{{mode[1]}}</option>
+          </select>
+        </div>
+
+
+        END
+        <div>
+          <select v-model="timeEndH">
+            <option value="">HH</option>
+            <option v-for="h in hoursSelector" :value="h.value">{{h.title}}</option>
+          </select>
+        </div>
+        <div>
+          <select v-model="timeEndM">
+            <option value="">MM</option>
+            <option v-for="m in minutesSelector" :value="m.value">{{m.title}}</option>
+          </select>
+        </div>
+        <div v-if="timeFormat == '12'">
+          <select v-model="modeEnd">
+            <option :value="mode[0]">{{mode[0]}}</option>
+            <option :value="mode[1]">{{mode[1]}}</option>
+          </select>
+        </div>
+
+        <div class="descr">
+          <textarea v-model="descr" cols="30" rows="3"></textarea>
+        </div>
+
+         <div class="radio">
+          <div>
+          <input type="radio" id="one" :value="false" v-model="isReccuring">
+          <label for="one">No</label>
+          </div>
+          <div>
+            <input type="radio" id="two" :value="true" v-model="isReccuring">
+            <label for="two">Yes</label>
+          </div>  
+         </div>   
+
+         <div v-if="isReccuring">
+          
+          <div v-for="t in recTypes">
+            <input :value="t" v-model="selectedRecurring" type="radio">
+            <label>{{t}}</label>
+          </div>
+
+          <div>
+            <input v-model="duration" type="text" size="4"> duration (max 4 weeks)
+          </div>
+         </div>
+
+      </div>
+    </div>
+        <button @click="submit()" class="btn">Submit</button>
+        {{msg}}
+        <button @click="test()" class="switch">Test</button>
+        <button @click="changeTimeFormat()" class="switch">TimeFormat</button>
   </div>
 </template>
 
@@ -11,10 +114,218 @@ export default {
   data () {
     return {
       msg:'',
+      timeFormat: '24',
+      duration:'',
+      isReccuring: false,
+      selectedRecurring:'',
+      recTypes:['weekly', 'be-weekly', 'monthly'],
+      descr: '',
+      curtentDate: new Date(),
+      employees:[],
+      userToBook:'',
+      selectedYear: '',
+      yearsInDropdown: 2,
+      mode:['AM', 'PM'],
+      modeStart:'AM',
+      modeEnd:'AM',
+      minutes:['00', '30'],
+      selectedMonth: '',
+      selectedDay:'',
+      timeStartH:'',
+      timeStartM:'',
+      timeEndH:'',
+      timeEndM:'',
+      timeStartMod: '',
+      timeEndMod: '',
     }
   },
   methods:{
-    
+    test: function(){
+      var self = this
+      var start = new Date(self.selectedYear, self.selectedMonth, self.selectedDay, self.timeStartH, self.timeStartM)
+      console.log(start.getMinutes())
+      console.log(start)
+      // console.log(self.timeStartM)
+
+      // console.log(self.selectedMonth)
+      // console.log(self.selectedDay)
+    },
+    submit:function(){
+      var self = this
+      self.msg = ''
+      if(self.checkInputs()){
+        var data = []
+
+        data.push({id_room:self.idRoom})
+        data.push({id_employee:self.userToBook})
+        var dateTime = {}
+        dateTime.start = new Date(self.selectedYear, self.selectedMonth, self.selectedDay, self.timeStartH, self.timeStartM)
+        // console.log(dateTime.start.dateTime())
+        dateTime.end = new Date(self.selectedYear, self.selectedMonth, self.selectedDay, self.timeEndH, self.timeEndM)
+        data.push(dateTime)
+        if(self.isReccuring){
+          var reccuring = {}
+          reccuring.type = self.selectedRecurring
+          reccuring.duration = self.duration
+          data.push(reccuring)
+        }
+        // console.log(data)
+      }
+    },
+    checkInputs: function(){
+      var self = this
+      
+      if(!self.userToBook){
+        self.msg = 'Select User'
+        return false
+      }
+      if(!self.selectedYear || !self.selectedMonth || !self.selectedDay){
+        self.msg = 'Select Day'
+        return false
+      }
+      if(!self.timeStartH || !self.timeStartM || !self.timeEndH || !self.timeEndM){
+        self.msg = 'Check time fileds'
+        return false
+      }
+      if(!self.descr){
+        self.msg = 'Check description field'
+        return false
+      }
+      if(self.isReccuring)
+      {
+        if(!self.duration.match('/\d [1-3]/')){
+          self.msg = 'Duration must be an integer'
+          return false
+        }
+        if(self.selectedRecurring == 'weekly'){
+          if(!self.duration.match('/\d [1-3]/')){
+            self.msg = 'duration on Weekly type must be in (1-3)'
+            return false
+          }
+          if(self.selectedRecurring == 'be-weekly'){
+            if(!self.duration.match('/\d [1-2]/')){
+            self.msg = 'duration on be-weekly type must be in (1-2)'
+            return false              
+            }
+          }
+          if(self.selectedRecurring=='monthly'){
+            if(self.duration != '1'){
+              self.msg = 'on Monthly max duration is 1'
+              return false
+            }
+          }
+        }
+      }
+      return true
+    },
+      getEmployees: function(){
+      var self = this
+        var xhr = new XMLHttpRequest()
+        if(self.user.id_role == ADMIN){
+          xhr.open('GET', getUrl()+'users/', true)
+        }else{
+          xhr.open('GET', getUrl()+'users/'+self.user.id, true)
+         
+        }
+        xhr.setRequestHeader("Authorization", "Basic " + btoa(self.user.id+":"+self.user.hash));        
+          xhr.onreadystatechange = function() {
+            if (xhr.readyState != 4) return
+              if (xhr.status != 200) {
+                alert(xhr.status + ': ' + xhr.statusText)
+              } else {
+                var res = JSON.parse(xhr.responseText)
+                if(res){
+                  self.employees = res
+                  // console.log(self.employees)
+                }else{
+                  self.employees = []
+                  self.msg = 'No users Found'
+                }
+              }
+        }
+        xhr.send();
+    },
+    changeTimeFormat:function(){
+      var self = this
+      self.timeStartH = ''
+      self.timeEndH = ''
+      if(self.timeFormat == '12'){
+        self.timeFormat = '24'
+      }else{
+        self.timeFormat = '12'
+      }
+    }   
+  },
+  created(){
+    this.getEmployees()
+  },
+  computed:{
+    yearSelector(){
+      var self = this
+      var years = []
+      for(var i=0;i<self.yearsInDropdown;i++){
+        years.push({value: new Date().getFullYear()+i, title:new Date().getFullYear()+i})
+      }
+      return years
+    },
+    monthSelector(){
+      var self = this
+      var currDate = new Date()
+      var monthSelArr = []
+      var month = ['Jan','Feb','Mar','Apr','May','Jun',
+        'Jul','Aug','Sep','Oct','Nov','Dec'];
+      if(currDate.getFullYear() != self.selectedYear){
+        month.forEach(function(month, key){
+          monthSelArr.push({value: key, title:month})
+        })
+      }
+      if(currDate.getFullYear() == self.selectedYear){
+        self.selectedMonth = ''
+        for(var i = currDate.getMonth();i <= 11 ;i++){
+          monthSelArr.push({value:i, title:month[i]})
+        }
+      }
+      return monthSelArr
+    },
+    daySelector(){
+      var self = this
+      var days = []
+      var selYM = new Date(self.selectedYear, self.selectedMonth)
+      var daysInMonth = new Date(selYM.getFullYear(), selYM.getMonth() + 1, 0).getDate()
+      if( (selYM.getFullYear() == self.curtentDate.getFullYear()) && (selYM.getMonth() == self.curtentDate.getMonth())  ){
+        self.selectedDay = ''
+        for(var i=self.curtentDate.getDate(); i<=daysInMonth; i++){
+          days.push({value:i, title:i})
+        }
+      }else{
+        for(var i = 1; i <= daysInMonth; i++){
+          days.push({value:i, title:i})
+        }
+      }
+      return days
+    },
+    hoursSelector(){
+      var self = this
+      var hours = []
+      if(self.timeFormat == '12'){
+        for(var i=1;i<=12;i++){
+          hours.push({value:i, title:i})
+        }
+      }else{
+        for(var i=8;i<=20;i++){
+          hours.push({value:i, title:i})
+        }        
+      }
+      return hours
+    },
+    minutesSelector(){
+      var self = this
+      var minutes = []
+      self.minutes.forEach(function(m){
+        minutes.push({value:m, title:m})
+      })
+      return minutes
+    }
   }
 }
 </script>

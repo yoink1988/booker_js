@@ -5,8 +5,8 @@
       <form role="form ">
       <div class="form-group">
         <label for="exampleInputEmail1">Email</label>
-        <input v-model="email" type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">
-            <small id="passwordHelpInliene" class="text-muted">
+        <input v-model="email" type="email" class="form-control" id="exampleInputEmail" placeholder="Enter email">
+            <small  class="text-muted">
             example@gmail.com
             </small>
       </div>
@@ -25,7 +25,7 @@
             </small>
       </div>
       <button @click="addUser()" class="btn btn-default">Submit</button>
-      <router-link to="/"><button class="btn btn-default">Home</button></router-link>
+      <router-link to="/home"><button class="btn btn-default">Home</button></router-link>
           <p style="padding:10px">{{msg}}</p>
     </form>
   </div>
@@ -48,6 +48,7 @@ export default {
   methods:{
     addUser: function(){
       var self = this
+      if(self.name && self.email && self.pass){
       var xhr = new XMLHttpRequest();
       var json = JSON.stringify({
          name: self.name,
@@ -69,12 +70,16 @@ export default {
                           self.email = ''
                           self.name = ''
                           self.pass = ''
+                          self.$parent.getEmployees()
                     }
                     else
                     self.msg = res
                   }
             }
           xhr.send(json)
+      }else{
+        self.msg = 'All fields are required'  
+      }
     }
   }
 
