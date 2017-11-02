@@ -37,16 +37,10 @@
             <option v-for="h in hoursSelector" :value="h.value">{{h.title}}</option>
           </select>
         </div>
-        <div>
+       <div>
           <select v-model="timeStartM">
             <option value="">MM</option>
             <option v-for="m in minutesSelector" :value="m.value">{{m.title}}</option>
-          </select>
-        </div>
-        <div v-if="timeFormat == '12'">
-          <select v-model="modeStart">
-            <option :value="mode[0]">{{mode[0]}}</option>
-            <option :value="mode[1]">{{mode[1]}}</option>
           </select>
         </div>
 
@@ -55,7 +49,7 @@
         <div>
           <select v-model="timeEndH">
             <option value="">HH</option>
-            <option v-for="h in hoursSelector" :value="h.value">{{h.title}}</option>
+            <option v-for="s in hoursSelector" :value="s.value">{{s.title}}</option>
           </select>
         </div>
         <div>
@@ -70,15 +64,21 @@
             <option :value="mode[1]">{{mode[1]}}</option>
           </select>
         </div>
-
+         <div v-if="timeFormat == '12'">
+          <select v-model="modeStart">
+            <option :value="mode[0]">{{mode[0]}}</option>
+            <option :value="mode[1]">{{mode[1]}}</option>
+          </select>
+        </div>
         <div class="descr">
           <textarea v-model="descr" cols="30" rows="3"></textarea>
         </div>
 
          <div class="radio">
           <div>
-          <input type="radio" id="one" :value="false" v-model="isReccuring">
-          <label for="one">No</label>
+            <p>Is Recuring</p>
+            <input type="radio" id="one" :value="false" v-model="isReccuring">
+            <label for="one">No</label>
           </div>
           <div>
             <input type="radio" id="two" :value="true" v-model="isReccuring">
@@ -114,17 +114,18 @@ export default {
   data () {
     return {
       msg:'',
-      timeFormat: '24',
-      duration:'',
+      refreshed:false,
+      timeFormat: '12',
+      duration: '',
       isReccuring: false,
-      selectedRecurring:'',
+      selectedRecurring:'weekly',
       recTypes:['weekly', 'be-weekly', 'monthly'],
       descr: '',
       curtentDate: new Date(),
       employees:[],
       userToBook:'',
       selectedYear: '',
-      yearsInDropdown: 2,
+      yearsInDropdown: 5,
       mode:['AM', 'PM'],
       modeStart:'AM',
       modeEnd:'AM',
@@ -137,14 +138,24 @@ export default {
       timeEndM:'',
       timeStartMod: '',
       timeEndMod: '',
+      vremyaEnd:'',
+      hoursss:[]
     }
   },
   methods:{
     test: function(){
       var self = this
-      var start = new Date(self.selectedYear, self.selectedMonth, self.selectedDay, self.timeStartH, self.timeStartM)
+      // var start = new Date(self.selectedYear, self.selectedMonth, self.selectedDay, self.timeStartH, self.timeStartM)
+      // var end = new Date(self.selectedYear, self.selectedMonth, self.selectedDay, self.timeEndH, self.timeEndM)
+      // console.log(start.getHours())
+      // console.log(start > end)
+
+      var start = new Date(self.selectedMonth+'/'+self.selectedDay+'/'+self.selectedYear+' '+self.timeStartH+':'+self.timeStartM+' '+self.modeStart)
+      // var end = new Date(self.selectedYear, self.selectedMonth, self.selectedDay, self.timeEndH, self.timeEndM)
+      console.log(start.getHours())
       console.log(start.getMinutes())
-      console.log(start)
+      console.log(start.getDate())
+
       // console.log(self.timeStartM)
 
       // console.log(self.selectedMonth)
@@ -158,10 +169,19 @@ export default {
 
         data.push({id_room:self.idRoom})
         data.push({id_employee:self.userToBook})
-        var dateTime = {}
-        dateTime.start = new Date(self.selectedYear, self.selectedMonth, self.selectedDay, self.timeStartH, self.timeStartM)
-        // console.log(dateTime.start.dateTime())
-        dateTime.end = new Date(self.selectedYear, self.selectedMonth, self.selectedDay, self.timeEndH, self.timeEndM)
+          var dateTime = {}
+
+        if(self.timeFormat == '12'){
+          dateTime.start = new Date(self.selectedMonth+'/'+self.selectedDay+'/'+self.selectedYear+' '+self.timeStartH+':'+self.timeStartM+' '+self.modeStart)
+          dateTime.end = new Date(self.selectedMonth+'/'+self.selectedDay+'/'+self.selectedYear+' '+self.timeEndH+':'+self.timeEndM+' '+self.modeEnd)
+        }else{
+          dateTime.start = new Date(self.selectedYear, self.selectedMonth, self.selectedDay, self.timeStartH, self.timeStartM)
+          dateTime.end = new Date(self.selectedYear, self.selectedMonth, self.selectedDay, self.timeEndH, self.timeEndM)
+        }
+                if(dateTime.start > dateTime.end){
+                  self.msg = 'Start of event must be earlier than end'
+                  return
+                }
         data.push(dateTime)
         if(self.isReccuring){
           var reccuring = {}
@@ -169,7 +189,7 @@ export default {
           reccuring.duration = self.duration
           data.push(reccuring)
         }
-        // console.log(data)
+         console.log(data)
       }
     },
     checkInputs: function(){
@@ -179,8 +199,11 @@ export default {
         self.msg = 'Select User'
         return false
       }
-      if(!self.selectedYear || !self.selectedMonth || !self.selectedDay){
+      if(!self.selectedYear || !Number.isInteger(self.selectedMonth) || !self.selectedDay){
         self.msg = 'Select Day'
+        console.log(self.selectedYear)
+        console.log(self.selectedMonth)
+        console.log(self.selectedDay)
         return false
       }
       if(!self.timeStartH || !self.timeStartM || !self.timeEndH || !self.timeEndM){
@@ -193,17 +216,22 @@ export default {
       }
       if(self.isReccuring)
       {
-        if(!self.duration.match('/\d [1-3]/')){
-          self.msg = 'Duration must be an integer'
+        if(self.duration == ''){
+          self.msg = 'Duration required'
+          return false
+        }
+
+        if(!Number.isInteger(+self.duration) || (+self.duration < 0)){
+          self.msg = 'Duration must be a positive integer'
           return false
         }
         if(self.selectedRecurring == 'weekly'){
-          if(!self.duration.match('/\d [1-3]/')){
+          if(!Number.isInteger(+self.duration) || (+self.duration > 3)){
             self.msg = 'duration on Weekly type must be in (1-3)'
             return false
           }
           if(self.selectedRecurring == 'be-weekly'){
-            if(!self.duration.match('/\d [1-2]/')){
+            if(!Number.isInteger(+self.duration) || (+self.duration > 2)){
             self.msg = 'duration on be-weekly type must be in (1-2)'
             return false              
             }
@@ -246,19 +274,45 @@ export default {
         xhr.send();
     },
     changeTimeFormat:function(){
+      // debugger
       var self = this
-      self.timeStartH = ''
-      self.timeEndH = ''
+      self.timeStartH = '';
+      self.timeEndH = '';
       if(self.timeFormat == '12'){
         self.timeFormat = '24'
       }else{
         self.timeFormat = '12'
       }
-    }   
+      // self.refreshed = false
+      // self.hoursEndSelector2()
+    },
+        hoursEndSelector2: function(){
+      var self = this
+      // if(!self.refreshed){
+        var hours = []
+        if(self.timeFormat == '12'){
+          for(var i=1;i<=12;i++){
+            hours.push(i)
+          }
+        }else{
+          for(var i=8;i<=20;i++){
+            hours.push(i)
+          }        
+        }
+        // self.refreshed = true
+        self.hours = hours
+      // }
+    },   
   },
+
   created(){
     this.getEmployees()
   },
+  // watch:{
+  //   timeEndH(){
+  //     debugger
+  //   }
+  // },
   computed:{
     yearSelector(){
       var self = this
@@ -306,18 +360,39 @@ export default {
     },
     hoursSelector(){
       var self = this
-      var hours = []
-      if(self.timeFormat == '12'){
-        for(var i=1;i<=12;i++){
-          hours.push({value:i, title:i})
+      // if(!self.refreshed){
+        var hours = []
+        if(self.timeFormat == '12'){
+          for(var i=1;i<=12;i++){
+            hours.push({value:i, title:i})
+          }
+        }else{
+          for(var i=8;i<=20;i++){
+            hours.push({value:i, title:i})
+          }        
         }
-      }else{
-        for(var i=8;i<=20;i++){
-          hours.push({value:i, title:i})
-        }        
-      }
-      return hours
+        // self.refreshed = true
+        return hours
+      // }
     },
+    hoursEndSelector(){
+      var self = this
+      // if(!self.refreshed){
+        var hours = []
+        if(self.timeFormat == '12'){
+          for(var i=1;i<=12;i++){
+            hours.push({value:i, title:i})
+          }
+        }else{
+          for(var i=8;i<=20;i++){
+            hours.push({value:i, title:i})
+          }        
+        }
+        self.refreshed = true
+        return hours
+      // }
+    },
+
     minutesSelector(){
       var self = this
       var minutes = []
