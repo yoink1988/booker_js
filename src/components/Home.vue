@@ -7,6 +7,7 @@
 
   <div v-if="content == 'calendar'">  
     <button @click="setWeekFirstDay()" class="day-switch">WeekFromSunday</button>
+    <button @click="setTimeFormat()" class="day-switch">Change Time Format</button>
     <button @click="test()" class="switch">Test</button>
     <button @click="logOut()" class="switch">Log Out</button>
     <div v-if="user.id_role == 2">
@@ -75,7 +76,8 @@ export default {
       user:{},
       activeRoomId:'',
       content: 'calendar',
-      isAdmin:false
+      isAdmin:false,
+      timeFormat: '12'
     }
   },
   components:{
@@ -83,6 +85,18 @@ export default {
     'bookit-section' : BookIt
   },
   methods:{
+    setTimeFormat: function(){
+      var self = this
+      if(self.timeFormat == '12'){
+        self.timeFormat = '24'
+              self.refreshed = false
+              return
+      }if(self.timeFormat == '24'){
+        self.timeFormat = '12'
+      }
+      self.refreshed = false
+
+    },
     test:function(){
       var self = this
       // console.log(ADMIN)
@@ -299,13 +313,11 @@ export default {
     calendarToDraw(){
       var self = this
       if(!self.refreshed){
-      var calendar = self.items
-
-     calendar.forEach(function(week){
+      var calendar = JSON.parse(JSON.stringify(self.items))
+      calendar.forEach(function(week, key){
         week.forEach(function(day){
           if(day[0]){
           var d = new Date(self.currYear, self.currMonth-1, day[0])
-          // var ev = self.events
             self.events.forEach(function(ev){
               var ed = new Date(ev.start)
               if(d.toDateString() == ed.toDateString()){
@@ -321,14 +333,28 @@ export default {
                 if(en_m == '0'){
                   en_m = '00'
                 }
-                ev.timeString = st_h+':'+st_m+' - '+en_h+':'+en_m
 
+                if(self.timeFormat == '24'){
+                  ev.timeString = st_h+':'+st_m+' - '+en_h+':'+en_m
+                }
+                if(self.timeFormat == '12'){
+                  if(+st_h > 12){
+                   var stStr = +st_h - 12 + ':'+st_m+' pm - '
+                  }else{
+                    var stStr = +st_h+':'+st_m+' am - '
+                  }
+                  if(+en_h > 12){
+                    var enStr = +en_h - 12 + ':'+st_m+' pm'
+                  }else{
+                     var enStr = +en_h+':'+st_m+' am'
+                  }
+                  ev.timeString = stStr+enStr
+                }
                 if(day.length == 1){
                  day.push([ev])
                 }else{
                   day[1].push(ev)
                 }
-                //  console.log(day)
               }
             })
           }

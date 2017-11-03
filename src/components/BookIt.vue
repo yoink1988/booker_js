@@ -30,21 +30,28 @@
 
         
 
-        START
         <div>
-          <select v-model="timeStartH">
-            <option value="">HH</option>
-            <option v-for="h in hoursSelector" :value="h.value">{{h.title}}</option>
-          </select>
-        </div>
-       <div>
-          <select v-model="timeStartM">
-            <option value="">MM</option>
-            <option v-for="m in minutesSelector" :value="m.value">{{m.title}}</option>
-          </select>
-        </div>
-
-
+        START
+          <div>
+            <select v-model="timeStartH">
+              <option value="">HH</option>
+              <option v-for="h in hoursSelector" :value="h.value">{{h.title}}</option>
+            </select>
+          </div>
+          <div>
+            <select v-model="timeStartM">
+              <option value="">MM</option>
+              <option v-for="m in minutesSelector" :value="m.value">{{m.title}}</option>
+            </select>
+          </div>
+          <div v-if="timeFormat == '12'">
+            <select v-model="modeStart">
+              <option :value="mode[0]">{{mode[0]}}</option>
+              <option :value="mode[1]">{{mode[1]}}</option>
+            </select>
+          </div>
+      </div>
+        <div>
         END
         <div>
           <select v-model="timeEndH">
@@ -58,18 +65,13 @@
             <option v-for="m in minutesSelector" :value="m.value">{{m.title}}</option>
           </select>
         </div>
-        <div v-if="timeFormat == '12'">
+         <div v-if="timeFormat == '12'">
           <select v-model="modeEnd">
             <option :value="mode[0]">{{mode[0]}}</option>
             <option :value="mode[1]">{{mode[1]}}</option>
           </select>
         </div>
-         <div v-if="timeFormat == '12'">
-          <select v-model="modeStart">
-            <option :value="mode[0]">{{mode[0]}}</option>
-            <option :value="mode[1]">{{mode[1]}}</option>
-          </select>
-        </div>
+      </div>
         <div class="descr">
           <textarea v-model="descr" cols="30" rows="3"></textarea>
         </div>
@@ -114,7 +116,7 @@ export default {
   data () {
     return {
       msg:'',
-      refreshed:false,
+      // refreshed:false,
       timeFormat: '12',
       duration: '',
       isReccuring: false,
@@ -138,59 +140,80 @@ export default {
       timeEndM:'',
       timeStartMod: '',
       timeEndMod: '',
-      vremyaEnd:'',
-      hoursss:[]
     }
   },
   methods:{
     test: function(){
       var self = this
-      // var start = new Date(self.selectedYear, self.selectedMonth, self.selectedDay, self.timeStartH, self.timeStartM)
-      // var end = new Date(self.selectedYear, self.selectedMonth, self.selectedDay, self.timeEndH, self.timeEndM)
-      // console.log(start.getHours())
-      // console.log(start > end)
+      var arr = []
+      arr.push('qwe')
+      var obj = {}
+      obj.test = arr
 
-      var start = new Date(self.selectedMonth+'/'+self.selectedDay+'/'+self.selectedYear+' '+self.timeStartH+':'+self.timeStartM+' '+self.modeStart)
-      // var end = new Date(self.selectedYear, self.selectedMonth, self.selectedDay, self.timeEndH, self.timeEndM)
-      console.log(start.getHours())
-      console.log(start.getMinutes())
-      console.log(start.getDate())
-
-      // console.log(self.timeStartM)
-
-      // console.log(self.selectedMonth)
-      // console.log(self.selectedDay)
+      obj.test.push('sadas')
+      console.log(obj)
     },
     submit:function(){
       var self = this
       self.msg = ''
+      var ds = new Date(self.selectedYear, self.selectedMonth, self.selectedDay, 8, 0).getTime()
+      var de = new Date(self.selectedYear, self.selectedMonth, self.selectedDay, 20, 0).getTime()
       if(self.checkInputs()){
-        var data = []
-
-        data.push({id_room:self.idRoom})
-        data.push({id_employee:self.userToBook})
-          var dateTime = {}
-
+        var obj = {}
+        obj.id_room = self.idRoom
+        // details = {}
+        obj.details = {}
+        obj.details.id_emp = self.userToBook
+        obj.details.descr = self.descr
         if(self.timeFormat == '12'){
-          dateTime.start = new Date(self.selectedMonth+'/'+self.selectedDay+'/'+self.selectedYear+' '+self.timeStartH+':'+self.timeStartM+' '+self.modeStart)
-          dateTime.end = new Date(self.selectedMonth+'/'+self.selectedDay+'/'+self.selectedYear+' '+self.timeEndH+':'+self.timeEndM+' '+self.modeEnd)
+          obj.details.start = new Date(self.selectedMonth+1 +'/'+self.selectedDay+'/'+self.selectedYear+' '+self.timeStartH+':'+self.timeStartM+' '+self.modeStart).getTime()
+          obj.details.end = new Date(self.selectedMonth+1 +'/'+self.selectedDay+'/'+self.selectedYear+' '+self.timeEndH+':'+self.timeEndM+' '+self.modeEnd).getTime()
         }else{
-          dateTime.start = new Date(self.selectedYear, self.selectedMonth, self.selectedDay, self.timeStartH, self.timeStartM)
-          dateTime.end = new Date(self.selectedYear, self.selectedMonth, self.selectedDay, self.timeEndH, self.timeEndM)
+          obj.details.start = new Date(self.selectedYear, self.selectedMonth, self.selectedDay, self.timeStartH, self.timeStartM).getTime()
+          obj.details.end = new Date(self.selectedYear, self.selectedMonth, self.selectedDay, self.timeEndH, self.timeEndM).getTime()
         }
-                if(dateTime.start > dateTime.end){
+                if(obj.details.start > obj.details.end){
                   self.msg = 'Start of event must be earlier than end'
                   return
                 }
-        data.push(dateTime)
+                if((obj.details.start < ds) || (obj.details.end < ds) || (obj.details.start > de) || (obj.details.end > de))
+                {
+                  self.msg = 'Avaliable time 8:00-20:00'
+                  return
+                }
+
+        // obj.event = details
         if(self.isReccuring){
           var reccuring = {}
           reccuring.type = self.selectedRecurring
           reccuring.duration = self.duration
-          data.push(reccuring)
+          obj.reccuring = reccuring
         }
-         console.log(data)
-      }
+
+      // self.authMsg = ''
+      var xhr = new XMLHttpRequest();
+      var json = JSON.stringify(obj);
+          xhr.open("POST", getUrl()+'events/', true)
+          xhr.setRequestHeader("Authorization", "Basic " + btoa(self.user.id+":"+self.user.hash));          
+          xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState != 4) return
+                  if (xhr.status != 200) {
+                        alert(xhr.status + ': ' + xhr.statusText)
+                  } else {
+                    console.log(xhr.responseText)
+                    var res = JSON.parse(xhr.responseText) 
+                    if(typeof(res == 'string')){
+                      self.msg = res
+                    }
+                    else{
+                      console.log(res)
+                      }
+                  }
+            }
+          xhr.send(json)
+        }
+      
     },
     checkInputs: function(){
       var self = this
@@ -201,9 +224,6 @@ export default {
       }
       if(!self.selectedYear || !Number.isInteger(self.selectedMonth) || !self.selectedDay){
         self.msg = 'Select Day'
-        console.log(self.selectedYear)
-        console.log(self.selectedMonth)
-        console.log(self.selectedDay)
         return false
       }
       if(!self.timeStartH || !self.timeStartM || !self.timeEndH || !self.timeEndM){
@@ -274,7 +294,6 @@ export default {
         xhr.send();
     },
     changeTimeFormat:function(){
-      // debugger
       var self = this
       self.timeStartH = '';
       self.timeEndH = '';
@@ -283,26 +302,8 @@ export default {
       }else{
         self.timeFormat = '12'
       }
-      // self.refreshed = false
-      // self.hoursEndSelector2()
     },
-        hoursEndSelector2: function(){
-      var self = this
-      // if(!self.refreshed){
-        var hours = []
-        if(self.timeFormat == '12'){
-          for(var i=1;i<=12;i++){
-            hours.push(i)
-          }
-        }else{
-          for(var i=8;i<=20;i++){
-            hours.push(i)
-          }        
-        }
-        // self.refreshed = true
-        self.hours = hours
-      // }
-    },   
+
   },
 
   created(){
@@ -360,7 +361,6 @@ export default {
     },
     hoursSelector(){
       var self = this
-      // if(!self.refreshed){
         var hours = []
         if(self.timeFormat == '12'){
           for(var i=1;i<=12;i++){
@@ -371,9 +371,7 @@ export default {
             hours.push({value:i, title:i})
           }        
         }
-        // self.refreshed = true
         return hours
-      // }
     },
     hoursEndSelector(){
       var self = this
