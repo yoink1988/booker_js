@@ -1,6 +1,7 @@
 <template>
   <div class="employees">
     <div v-if="content == 'list'">
+      <p><router-link to='/'>Back to Calendar</router-link></p>
       <p><a class="link" @click="setContent('add')">Add new employee</a></p>
     </div>
     <div v-else>
@@ -26,8 +27,10 @@
                 <td>
                   <a class="link" @click="edit(emp)">Edit</a>
                 </td>
-                <td>
+                <td v-if="user.id != emp.id">
                   <a class="link" @click="showRemove(emp)">Remove</a>
+                </td>
+                <td v-else>
                 </td>
               </tr>
             </tbody>

@@ -1,15 +1,13 @@
 <template>
   <div class="row">
+    <button @click="test()" class="switch">Test</button>
+    <button @click="logOut()" class="switch">Log Out</button>
 
     <div v-if="content == ''">
       <login-section></login-section>
     </div>
 
-  <div v-if="content == 'calendar'">  
-    <button @click="setWeekFirstDay()" class="day-switch">WeekFromSunday</button>
-    <button @click="setTimeFormat()" class="day-switch">Change Time Format</button>
-    <button @click="test()" class="switch">Test</button>
-    <button @click="logOut()" class="switch">Log Out</button>
+  <div @reload="alert('dasd')" v-if="content == 'calendar'">  
     <div v-if="user.id_role == 2">
       <router-link to="/employees">Employee List</router-link>
     </div>
@@ -23,6 +21,8 @@
       <p><a class="link" @click="bookIt()">Book It!</a></p>
     </div>
     <div class="calendar col cal-block">
+    <a class="link" style="float:right;margin:15px;" @click="setWeekFirstDay()" >WeekFromSunday</a>
+    <a class="link" style="float:right;margin:15px;" @click="setTimeFormat()" >Change Time Format</a>
       <table class="table table-bordered">
         <thead>
           <tr>
@@ -32,17 +32,14 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-if="firstDayMonday"><td>пн</td><td>вт</td><td>ср</td><td>чт</td><td>пт</td><td>сб</td><td>вс</td></tr>
-          <tr v-if="!firstDayMonday"><td>вс</td><td>пн</td><td>вт</td><td>ср</td><td>чт</td><td>пт</td><td>сб</td></tr>
+          <tr v-if="firstDayMonday"><td>Monday</td><td>Tuesday</td><td>Wednesday</td><td>Thursday</td><td>Friday</td><td>Saturday</td><td>Sunday</td></tr>
+          <tr v-if="!firstDayMonday"><td>Sunday</td><td>Monday</td><td>Tuesday</td><td>Wednesday</td><td>Thursday</td><td>Friday</td><td>Saturday</td></tr>
 
           <tr v-for="row in calendarToDraw">
               <td v-for="day in row">
-                <!-- <p>{{day[0]}}</p> -->
                 <span v-if="day.length > 1">{{day[0]}}</span>
-                <!-- <p v-for="event in day[1]"> <a @click="editEvent(event.id)" class="link">{{event.timeString}}</a> </p> -->
                 <p v-for="event in day[1]"> <a @click="editEvent(event)" class="link">{{event.timeString}}</a> </p>
                 <span  v-if="day.length == 1">{{day[0]}}</span>
-                <!-- style="float:right" -->
               </td>
           </tr>
         </tbody>
@@ -51,7 +48,7 @@
   
   </div>
   <div v-if="content == 'bookit'">
-      <bookit-section :user="user" :idRoom="activeRoomId"></bookit-section>
+      <bookit-section :user="user" :idRoom="activeRoomId" :timeFormat="timeFormat"></bookit-section>
   </div>
  <div v-if="activeEvent">
   <modal @close="activeEvent = false" :event="activeEvent" :user="user"></modal>
@@ -82,7 +79,7 @@ export default {
       activeRoomId:'',
       content: 'calendar',
       isAdmin:false,
-      timeFormat: '12',
+      timeFormat: '24',
       showModal: false,
       activeEvent: null
     }

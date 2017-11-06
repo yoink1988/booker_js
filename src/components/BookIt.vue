@@ -1,5 +1,7 @@
 <template>
   <div class="book-it">
+        <!-- <a class="link" @click="changeTimeFormat()">TimeFormat</a> -->
+        <a class="link" @click="$parent.content = 'calendar'">Back to Calendar</a>
     <div class="row">
       <div class="col form">
         <div>
@@ -40,7 +42,7 @@
           </div>
           <div>
             <select v-model="timeStartM">
-              <option value="">MM</option>
+              <!-- <option value="">MM</option> -->
               <option v-for="m in minutesSelector" :value="m.value">{{m.title}}</option>
             </select>
           </div>
@@ -61,7 +63,7 @@
         </div>
         <div>
           <select v-model="timeEndM">
-            <option value="">MM</option>
+            <!-- <option value="">MM</option> -->
             <option v-for="m in minutesSelector" :value="m.value">{{m.title}}</option>
           </select>
         </div>
@@ -105,19 +107,17 @@
         <button @click="submit()" class="btn">Submit</button>
         {{msg}}
         <button @click="test()" class="switch">Test</button>
-        <button @click="changeTimeFormat()" class="switch">TimeFormat</button>
   </div>
 </template>
 
 <script>
 export default {
   name: 'BookIt',
-  props: ['user', 'idRoom'],
+  props: ['user', 'idRoom','timeFormat'],
   data () {
     return {
       msg:'',
-      // refreshed:false,
-      timeFormat: '12',
+      // timeFormat: '12',
       duration: '',
       isReccuring: false,
       selectedRecurring:'weekly',
@@ -127,7 +127,7 @@ export default {
       employees:[],
       userToBook:'',
       selectedYear: '',
-      yearsInDropdown: 5,
+      yearsInDropdown: 2,
       mode:['AM', 'PM'],
       modeStart:'AM',
       modeEnd:'AM',
@@ -135,9 +135,9 @@ export default {
       selectedMonth: '',
       selectedDay:'',
       timeStartH:'',
-      timeStartM:'',
+      timeStartM:'00',
       timeEndH:'',
-      timeEndM:'',
+      timeEndM:'00',
       timeStartMod: '',
       timeEndMod: '',
     }

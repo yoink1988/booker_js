@@ -136,6 +136,7 @@ export default {
                             var res = JSON.parse(xhr.responseText)
                             if(res === true){
                               self.msg = 'Updated'
+                              self.$emit('reload')
                             }
                             else{
                               self.msg = res
