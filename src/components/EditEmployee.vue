@@ -18,7 +18,7 @@
             </small>
       </div>
       <button @click="save()" class="btn btn-default">Save</button>
-      <router-link to="/home"><button class="btn btn-default">Home</button></router-link>
+      <button @click="$parent.content = 'list'" class="btn btn-default">Back</button>
           <p style="padding:10px">{{msg}}</p>
     </form>
   </div>

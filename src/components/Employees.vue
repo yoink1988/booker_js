@@ -27,7 +27,7 @@
                   <a class="link" @click="edit(emp)">Edit</a>
                 </td>
                 <td>
-                  <a class="link" @click="remove(emp.id)">Remove</a>
+                  <a class="link" @click="showRemove(emp)">Remove</a>
                 </td>
               </tr>
             </tbody>
@@ -39,12 +39,17 @@
       </div>
         {{msg}}
     </div>
+    <div v-if="content == 'remove'">
+      <remove-section :emp="empToRemove" :user="user"></remove-section>
+    </div>
+
   </div>
 </template>
 
 <script>
 import AddEmployee from './AddEmployee.vue'
 import EditEmployee from './EditEmployee.vue'
+import RemoveEmployee from './RemoveEmployee.vue'
 export default {
   name: 'Employees',
   data () {
@@ -53,7 +58,8 @@ export default {
       user:{},
       msg: '',
       content: 'list',
-      employeeToEdit:''
+      employeeToEdit:{},
+      empToRemove: {}
     }
   },
   created(){
@@ -62,7 +68,8 @@ export default {
   },
   components:{
     'add-section' : AddEmployee,
-    'edit-section' : EditEmployee
+    'edit-section' : EditEmployee,
+    'remove-section' : RemoveEmployee
   },
   methods:{
      getStorageData: function(){
@@ -127,6 +134,11 @@ export default {
       self.employeeToEdit = employee
       self.content = 'edit'
       
+    },
+    showRemove: function(emp){
+      var self = this
+      self.empToRemove = emp
+      self.setContent('remove')
     }
 
   },

@@ -38,9 +38,11 @@
           <tr v-for="row in calendarToDraw">
               <td v-for="day in row">
                 <!-- <p>{{day[0]}}</p> -->
-                <p v-if="day.length > 1">{{day[0]}}</p>
-                <p v-for="event in day[1]"> <a @click="makePopUp(event)" class="link">{{event.timeString}}</a> </p>
-                <p v-if="day.length == 1">{{day[0]}}</p>
+                <span v-if="day.length > 1">{{day[0]}}</span>
+                <!-- <p v-for="event in day[1]"> <a @click="editEvent(event.id)" class="link">{{event.timeString}}</a> </p> -->
+                <p v-for="event in day[1]"> <a @click="editEvent(event)" class="link">{{event.timeString}}</a> </p>
+                <span  v-if="day.length == 1">{{day[0]}}</span>
+                <!-- style="float:right" -->
               </td>
           </tr>
         </tbody>
@@ -51,7 +53,9 @@
   <div v-if="content == 'bookit'">
       <bookit-section :user="user" :idRoom="activeRoomId"></bookit-section>
   </div>
-
+ <div v-if="activeEvent">
+  <modal @close="activeEvent = false" :event="activeEvent" :user="user"></modal>
+ </div>
 </div>
 
 </template>
@@ -59,6 +63,7 @@
 <script>
 import Login from './Login.vue'
 import BookIt from './BookIt.vue'
+import Modal from './Modal.vue'
 export default {
   name: 'Main',
   data () {
@@ -77,12 +82,15 @@ export default {
       activeRoomId:'',
       content: 'calendar',
       isAdmin:false,
-      timeFormat: '12'
+      timeFormat: '12',
+      showModal: false,
+      activeEvent: null
     }
   },
   components:{
     'login-section' : Login,
-    'bookit-section' : BookIt
+    'bookit-section' : BookIt,
+    'modal' : Modal
   },
   methods:{
     setTimeFormat: function(){
@@ -91,10 +99,11 @@ export default {
         self.timeFormat = '24'
               self.refreshed = false
               return
-      }if(self.timeFormat == '24'){
-        self.timeFormat = '12'
-      }
+      }else{
+      self.timeFormat = '12'
       self.refreshed = false
+      return
+      }
 
     },
     test:function(){
@@ -102,9 +111,11 @@ export default {
       // console.log(ADMIN)
       // console.log(self.id_role)
     },
-    makePopUp: function(event){
+    // editEvent: function(id){                                                                        ///////////////////
+    editEvent: function(event){                                                                        ///////////////////
       var self = this
-      alert(event.id)
+      self.activeEvent = event
+      // self.activeEvent = id
     },
     bookIt: function (){
       var self = this
@@ -321,32 +332,39 @@ export default {
             self.events.forEach(function(ev){
               var ed = new Date(ev.start)
               if(d.toDateString() == ed.toDateString()){
-                
                 var st_h = new Date(ev.start).getHours()
                 var st_m = new Date(ev.start).getMinutes()
                 var en_h = new Date(ev.end).getHours()
                 var en_m = new Date(ev.end).getMinutes()
+              
 
-                if(st_m == '0'){
+                if(st_m === 0){
                   st_m = '00'
+                }else{
+                  st_m = '30'
                 }
-                if(en_m == '0'){
-                  en_m = '00'
+                
+                if(en_m === 0){
+                var en_m = '00'
+                }else{
+                var en_m = '30'
                 }
 
                 if(self.timeFormat == '24'){
-                  ev.timeString = st_h+':'+st_m+' - '+en_h+':'+en_m
+                  ev.timeString = st_h+':'+ st_m+' - '+en_h+':'+ en_m
+
                 }
                 if(self.timeFormat == '12'){
                   if(+st_h > 12){
-                   var stStr = +st_h - 12 + ':'+st_m+' pm - '
+                    var stStr = +st_h - 12 + ':'+ st_m+' pm - '
                   }else{
                     var stStr = +st_h+':'+st_m+' am - '
                   }
                   if(+en_h > 12){
-                    var enStr = +en_h - 12 + ':'+st_m+' pm'
+                    var enStr = +en_h - 12 + ':'+ en_m + ' pm'
                   }else{
-                     var enStr = +en_h+':'+st_m+' am'
+                    var enStr = +en_h+':'+ en_m + ' am'
+
                   }
                   ev.timeString = stStr+enStr
                 }
@@ -355,7 +373,10 @@ export default {
                 }else{
                   day[1].push(ev)
                 }
+
               }
+               st_m = undefined
+
             })
           }
         })

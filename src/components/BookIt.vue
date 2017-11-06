@@ -350,11 +350,17 @@ export default {
       if( (selYM.getFullYear() == self.curtentDate.getFullYear()) && (selYM.getMonth() == self.curtentDate.getMonth())  ){
         self.selectedDay = ''
         for(var i=self.curtentDate.getDate(); i<=daysInMonth; i++){
-          days.push({value:i, title:i})
+          var d = new Date(self.selectedYear,self.selectedMonth, i)
+          if((d.getDay() != 6) && (d.getDay() != 0)){
+            days.push({value:i, title:i})
+          }
         }
       }else{
         for(var i = 1; i <= daysInMonth; i++){
-          days.push({value:i, title:i})
+          var d = new Date(self.selectedYear,self.selectedMonth, i)
+          if((d.getDay() != 6) && (d.getDay() != 0)){          
+            days.push({value:i, title:i})
+          }
         }
       }
       return days
@@ -372,23 +378,6 @@ export default {
           }        
         }
         return hours
-    },
-    hoursEndSelector(){
-      var self = this
-      // if(!self.refreshed){
-        var hours = []
-        if(self.timeFormat == '12'){
-          for(var i=1;i<=12;i++){
-            hours.push({value:i, title:i})
-          }
-        }else{
-          for(var i=8;i<=20;i++){
-            hours.push({value:i, title:i})
-          }        
-        }
-        self.refreshed = true
-        return hours
-      // }
     },
 
     minutesSelector(){
