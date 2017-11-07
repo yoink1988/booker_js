@@ -35,7 +35,7 @@
                 <div v-if="( (currDate < eventStartPoint) && (isOwner || isAdmin) )">
                   Notes: <textarea v-model="event.descr"></textarea>
                 </div>
-                <div v-if="currDate > eventStartPoint">
+                <div v-if="((!isOwner && !isAdmin) || (currDate > eventStartPoint))">
                   Notes: <span>{{event.descr}}</span>
                 </div>
                 <div v-if="isAdmin && (currDate < eventStartPoint)">
@@ -136,7 +136,7 @@ export default {
                             var res = JSON.parse(xhr.responseText)
                             if(res === true){
                               self.msg = 'Updated'
-                              self.$emit('reload')
+                              // self.$parent.$emit('reload')
                             }
                             else{
                               self.msg = res
@@ -149,7 +149,7 @@ export default {
       var self = this
        self.msg = ''   
         var xhr = new XMLHttpRequest();
-        var url = getUrl()+'events/id/'+self.event.id+'/from/'+self.eventStartPoint.getTime()
+        var url = getUrl()+'events/id/'+self.event.id+'/from/'+self.eventStartPoint.getTime()+'/user/'+self.user.id
 
         if(self.aplyToRec){
           url+='/all/true'
@@ -238,7 +238,8 @@ export default {
         return
       }
         var xhr = new XMLHttpRequest()
-        xhr.open('GET', getUrl()+'events/id/'+self.event.id+'/count/true', true)
+        xhr.open('GET', getUrl()+'events/id/'+self.event.id+'/count/true/user/'+self.user.id, true)
+        xhr.setRequestHeader("Authorization", "Basic " + btoa(self.user.id+":"+self.user.hash));        
           xhr.onreadystatechange = function() {
             if (xhr.readyState != 4) return
               if (xhr.status != 200) {

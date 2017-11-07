@@ -7,7 +7,7 @@
       <login-section></login-section>
     </div>
 
-  <div @reload="alert('dasd')" v-if="content == 'calendar'">  
+  <div @reload="getEvents"  v-if="content == 'calendar'">  
     <div v-if="user.id_role == 2">
       <router-link to="/employees">Employee List</router-link>
     </div>
