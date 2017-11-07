@@ -105,8 +105,11 @@
       </div>
     </div>
         <button @click="submit()" class="btn">Submit</button>
-        {{msg}}
-        <button @click="test()" class="switch">Test</button>
+        <div v-if="msg">
+          <p v-if="!Array.isArray(msg)">{{msg}}</p>
+          <p v-if="typeof(msg) == 'object'" v-for="mess in msg">{{mess}}</p>
+          </div>
+        <!-- <button @click="test()" class="switch">Test</button> -->
   </div>
 </template>
 
@@ -201,15 +204,14 @@ export default {
                   if (xhr.status != 200) {
                         alert(xhr.status + ': ' + xhr.statusText)
                   } else {
-                    console.log(xhr.responseText)
                     var res = JSON.parse(xhr.responseText) 
-                    if(typeof(res == 'string')){
-                      self.msg = res
-                    }
-                    else{
-                      console.log(res)
-                      }
+                    if(res === true){
+                      self.msg = 'Added'
+                    }else{
+                        self.msg = res
+                        }
                   }
+                  self.$parent.getEvents()
             }
           xhr.send(json)
         }

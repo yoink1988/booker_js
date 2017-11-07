@@ -14,7 +14,7 @@
 
 
             <slot name="body">
-              <div  v-if="( (currDate < eventStartPoint) && (isOwner || isAdmin)) "> Time: 
+              <div  v-if="( (currDate < eventStartPoint) && (isOwner || isAdmin) && (!isDeleted)) "> Time: 
                 <select v-model="startH">
                   <option v-for="h in hoursSelector" :value="h.value">{{h.title}}</option>
                 </select>
@@ -29,37 +29,40 @@
                   <option v-for="m in minutesSelector" :value="m.value">{{m.title}}</option>
                 </select>
               </div>
-              <div v-if="((currDate > eventStartPoint)) || (!isOwner && !isAdmin)">
+              <div v-if="((currDate > eventStartPoint)) || (!isOwner && !isAdmin) || isDeleted">
                 Time: <span>{{startH}}:{{endM}} - {{endH}}:{{endM}}</span>
               </div>
-                <div v-if="( (currDate < eventStartPoint) && (isOwner || isAdmin) )">
+                <div v-if="( (currDate < eventStartPoint) && (isOwner || isAdmin) && (!isDeleted))">
                   Notes: <textarea v-model="event.descr"></textarea>
                 </div>
-                <div v-if="((!isOwner && !isAdmin) || (currDate > eventStartPoint))">
+                <div v-if="((!isOwner && !isAdmin) || (currDate > eventStartPoint) || isDeleted)">
                   Notes: <span>{{event.descr}}</span>
                 </div>
-                <div v-if="isAdmin && (currDate < eventStartPoint)">
+                <div v-if="isAdmin && (currDate < eventStartPoint) && (!isDeleted)">
                   Who: 
                   <select v-if="employees" v-model="selectedUser">
                     <option v-for="emp in employees" :value="emp.id">{{emp.name}}</option>
                   </select>
                 </div>
-                <div v-if="!isAdmin || (currDate > eventStartPoint)">
+                <div v-if="!isAdmin || (currDate > eventStartPoint) || (isDeleted)">
                   Who: <span>{{event.u_name}}</span>
                 </div>
               <p></p>
               <p> PubDate: {{event.submit}}</p>
 
-              <div v-if="( (currDate < eventStartPoint) && (isOwner || isAdmin) )">
+              <div v-if="( (currDate < eventStartPoint) && (isOwner || isAdmin) && (!isDeleted))">
                 <div v-if="isRecc">
-                  <input v-model="aplyToRec" type="checkbox">Apply to all
+                  <input v-model="aplyToRec" type="checkbox">Apply to occurencies, (starts from this event)
                 </div>
                 <div>
                   <button @click="update()">update</button>
                   <button @click="remove()">delete</button>
-                  {{msg}}
                 </div>  
               </div>
+                  <div v-if="msg">
+                    <p v-if="!Array.isArray(msg)">{{msg}}</p>
+                    <p v-if="typeof(msg) == 'object'" v-for="mess in msg">{{mess}}</p>
+                  </div>
             </slot>
 
 
@@ -93,7 +96,8 @@ export default {
       employees: {},
       isOwner: false,
       isAdmin: false,
-      msg:''
+      msg:'',
+      isDeleted: false
     }
   },
   created(){
@@ -135,12 +139,12 @@ export default {
                           else {
                             var res = JSON.parse(xhr.responseText)
                             if(res === true){
-                              self.msg = 'Updated'
-                              // self.$parent.$emit('reload')
+                              self.msg = 'Event updated'
                             }
                             else{
                               self.msg = res
                             }
+                            self.$parent.getEvents()
                     }
               }
         xhr.send(json)
@@ -162,15 +166,15 @@ export default {
                   if (xhr.status != 200) {
                         alert(xhr.status + ': ' + xhr.statusText)
                   } else {
-                    console.log(xhr.responseText)
-                      // var res = JSON.parse(xhr.responseText)
-                      // if(res){
-                      //   self.authMsg = 'Deleted'
-                      // }
-                      // else{
-                      //   self.authMsg = 'Fail'
-                      // }
+                    // console.log(xhr.responseText)
+                      var res = JSON.parse(xhr.responseText)
+                      if(res){
+                        self.msg = 'Deleted'
+                      }
+
                   }
+              self.$parent.getEvents()
+              self.isDeleted = true
           }
           xhr.send(null);     
     
