@@ -1,31 +1,24 @@
 <template>
   <div class="modal">
-    <!-- <script type="text/x-template" id="modal-template"> -->
-      <transition name="modal">
-        <div class="modal-mask">
-          <div class="modal-wrapper">
-            <div class="modal-container">
-              
-                <slot name="header">
-                  <!-- Event Details{{eventId}} -->
-                  <span style="font-weight:bold; font-size:15px;">Event Details </span>
-                </slot>
-
-
-
+    <transition name="modal">
+      <div class="modal-mask">
+        <div class="modal-wrapper">
+          <div class="modal-container">
+            <slot name="header">
+              <span style="font-weight:bold; font-size:15px;">Event Details </span>
+            </slot>
             <slot name="body">
-              <div  v-if="( (currDate < eventStartPoint) && (isOwner || isAdmin) && (!isDeleted)) "> Time: 
+              <div v-if="( (currDate < eventStartPoint) && (isOwner || isAdmin) && (!isDeleted)) "> Time:
                 <select v-model="startH">
                   <option v-for="h in hoursSelector" :value="h.value">{{h.title}}</option>
                 </select>
                 <select v-model="startM">
                   <option v-for="m in minutesSelector" :value="m.value">{{m.title}}</option>
                 </select>
-          <select v-if="timeFormat == '12'" v-model="modeStart">
-            <option :value="mode[0]">{{mode[0]}}</option>
-            <option :value="mode[1]">{{mode[1]}}</option>
-          </select>
-
+                <select v-if="timeFormat == '12'" v-model="modeStart">
+                  <option :value="mode[0]">{{mode[0]}}</option>
+                  <option :value="mode[1]">{{mode[1]}}</option>
+                </select>
                 -
                 <select v-model="endH">
                   <option v-for="h in hoursSelector" :value="h.value">{{h.title}}</option>
@@ -33,70 +26,66 @@
                 <select v-model="endM">
                   <option v-for="m in minutesSelector" :value="m.value">{{m.title}}</option>
                 </select>
-          <select v-if="timeFormat == '12'" v-model="modeEnd">
-            <option :value="mode[0]">{{mode[0]}}</option>
-            <option :value="mode[1]">{{mode[1]}}</option>
-          </select>                
+                <select v-if="timeFormat == '12'" v-model="modeEnd">
+                  <option :value="mode[0]">{{mode[0]}}</option>
+                  <option :value="mode[1]">{{mode[1]}}</option>
+                </select>
               </div>
               <div v-if="((currDate > eventStartPoint)) || (!isOwner && !isAdmin) || isDeleted">
-                Time: <span>{{startH}}:{{endM}} - {{endH}}:{{endM}}</span>
+                Time:
+                <span>{{startH}}:{{endM}} - {{endH}}:{{endM}}</span>
               </div>
-                <div style="margin-top:10px;margin-bottom:10px;" v-if="( (currDate < eventStartPoint) && (isOwner || isAdmin) && (!isDeleted))">
-                  Notes: <textarea v-model="event.descr"></textarea>
-                </div>
-                <div v-if="((!isOwner && !isAdmin) || (currDate > eventStartPoint) || isDeleted)">
-                  Notes: <span>{{event.descr}}</span>
-                </div>
-                <div v-if="isAdmin && (currDate < eventStartPoint) && (!isDeleted)">
-                  Who: 
-                  <select v-if="employees" v-model="selectedUser">
-                    <option v-for="emp in employees" :value="emp.id">{{emp.name}}</option>
-                  </select>
-                </div>
-                <div v-if="!isAdmin || (currDate > eventStartPoint) || (isDeleted)">
-                  Who: <span>{{event.u_name}}</span>
-                </div>
+              <div style="margin-top:10px;margin-bottom:10px;" v-if="( (currDate < eventStartPoint) && (isOwner || isAdmin) && (!isDeleted))">
+                Notes:
+                <textarea v-model="event.descr"></textarea>
+              </div>
+              <div v-if="((!isOwner && !isAdmin) || (currDate > eventStartPoint) || isDeleted)">
+                Notes:
+                <span>{{event.descr}}</span>
+              </div>
+              <div v-if="isAdmin && (currDate < eventStartPoint) && (!isDeleted)">
+                Who:
+                <select v-if="employees" v-model="selectedUser">
+                  <option v-for="emp in employees" :value="emp.id">{{emp.name}}</option>
+                </select>
+              </div>
+              <div v-if="!isAdmin || (currDate > eventStartPoint) || (isDeleted)">
+                Who:
+                <span>{{event.u_name}}</span>
+              </div>
               <p></p>
               <p> PubDate: {{event.submit}}</p>
-
-                 
-              
               <div v-if="( (currDate < eventStartPoint) && (isOwner || isAdmin) && (!isDeleted))">
                 <div v-if="isRecc">
                   <input v-model="aplyToRec" type="checkbox">Apply to occurencies, (starts from this event)
                 </div>
-                <div class="butt-act"> 
-                  
+                <div class="butt-act">
                   <button class="btn btn" @click="update()">update</button>
                   <button class="btn btn" @click="remove()">delete</button>
-                </div> 
-                 
+                </div>
               </div>
-               <button class=" btn btn col-xs-offset-10" @click="$emit('close')"> OK </button>
-              
-                  <div v-if="msg">
-                    <p v-if="!Array.isArray(msg)">{{msg}}</p>
-                    <p v-if="typeof(msg) == 'object'" v-for="mess in msg">{{mess}}</p>
-                  </div>
-                  
+              <button class=" btn btn col-xs-offset-10" @click="$emit('close')"> OK </button>
+              <div v-if="msg">
+                <p v-if="!Array.isArray(msg)">{{msg}}</p>
+                <p v-if="typeof(msg) == 'object'" v-for="mess in msg">{{mess}}</p>
+              </div>
             </slot>
-            </div>
           </div>
         </div>
-      </transition>
-    <!-- </script> -->
+      </div>
+    </transition>
   </div>
 </template>
 
 <script>
 export default {
-  props:['event', 'user', 'timeFormat'],
+  props: ['event', 'user', 'timeFormat'],
   name: 'Modal',
-  data () {
+  data() {
     return {
       modeStart: '',
       modeEnd: '',
-      mode:['AM', 'PM'],
+      mode: ['AM', 'PM'],
       isRecc: false,
       aplyToRec: false,
       eventStartPoint: '',
@@ -105,56 +94,55 @@ export default {
       endH: '',
       endM: '',
       users: '',
-      minutes:['00', '30'],
+      minutes: ['00', '30'],
       selectedUser: '',
       employees: {},
       isOwner: false,
       isAdmin: false,
-      msg:'',
+      msg: '',
       isDeleted: false
     }
   },
-  created(){
+  created() {
     this.isUserAdmin()
     this.isUserOwner()
     this.getParametres()
     this.isReccuring()
     this.getUsers()
   },
-  methods:{
-    update:function(){
+  methods: {
+    update: function() {
       var self = this
       var data = {}
       var timeStart = new Date(self.event.start)
       var timeEnd = new Date(self.event.end)
-      if(self.timeFormat =='24'){
+      if (self.timeFormat == '24') {
         timeStart.setHours(self.startH, self.startM)
         timeEnd.setHours(self.endH, self.endM)
       }
-      if(self.timeFormat =='12'){
-        if(self.modeStart == 'AM'){
+      if (self.timeFormat == '12') {
+        if (self.modeStart == 'AM') {
           timeStart.setHours(self.startH, self.startM)
-        }else{
-          if(self.startH == 12){
+        } else {
+          if (self.startH == 12) {
             timeStart.setHours(self.endH, self.startM)
-          }else{
-            timeStart.setHours(+self.startH+12, self.startM)
+          } else {
+            timeStart.setHours(+self.startH + 12, self.startM)
           }
         }
-        if(self.modeEnd == 'AM'){
+        if (self.modeEnd == 'AM') {
 
           timeEnd.setHours(self.endH, self.endM)
         }
-        if(self.modeEnd == 'PM'){
-          if(self.endH == 12){
+        if (self.modeEnd == 'PM') {
+          if (self.endH == 12) {
             timeEnd.setHours(self.endH, self.endM)
-          }else{
-            timeEnd.setHours(self.endH+12, self.endM)
-            // console.log(timeEnd)
+          } else {
+            timeEnd.setHours(self.endH + 12, self.endM)
           }
         }
       }
-      
+
       data.id = self.event.id
       data.id_room = self.event.room_id
       var details = {}
@@ -164,96 +152,95 @@ export default {
       details.timeEnd = timeEnd.getTime()
       details.desc = self.event.descr
       data.details = details
-      if(self.isRecc && self.aplyToRec){
+      if (self.isRecc && self.aplyToRec) {
         data.occur = true
       }
-        var xhr = new XMLHttpRequest();
-        var json = JSON.stringify(data);
-            xhr.open("PUT", getUrl()+'events/', true)
-            xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-            xhr.setRequestHeader("Authorization", "Basic " + btoa(self.user.id+":"+self.user.hash));            
-              xhr.onreadystatechange = function() {
-                  if (xhr.readyState != 4) return
-                    if (xhr.status != 200) {
-                          alert(xhr.status + ': ' + xhr.statusText)}
-                          else {
-                            var res = JSON.parse(xhr.responseText)
-                            if(res === true){
-                              self.msg = 'Event updated'
-                            }
-                            else{
-                              self.msg = res
-                            }
-                            self.$parent.getEvents()
-                    }
-              }
-        xhr.send(json)
-    },
-    remove: function(){
-      var self = this
-       self.msg = ''   
-        var xhr = new XMLHttpRequest();
-        var url = getUrl()+'events/id/'+self.event.id+'/from/'+self.eventStartPoint.getTime()+'/user/'+self.user.id
-
-        if(self.aplyToRec){
-          url+='/all/true'
+      var xhr = new XMLHttpRequest();
+      var json = JSON.stringify(data);
+      xhr.open("PUT", getUrl() + 'events/', true)
+      xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+      xhr.setRequestHeader("Authorization", "Basic " + btoa(self.user.id + ":" + self.user.hash));
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState != 4) return
+        if (xhr.status != 200) {
+          alert(xhr.status + ': ' + xhr.statusText)
         }
-        xhr.open("DELETE", url, true);
-        xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-          xhr.setRequestHeader("Authorization", "Basic " + btoa(self.user.id+":"+self.user.hash));         
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState != 4) return
-                  if (xhr.status != 200) {
-                        alert(xhr.status + ': ' + xhr.statusText)
-                  } else {
-                      var res = JSON.parse(xhr.responseText)
-                      if(res){
-                        self.msg = 'Deleted'
-                      }
-
-                  }
-              self.$parent.getEvents()
-              self.isDeleted = true
+        else {
+          var res = JSON.parse(xhr.responseText)
+          if (res === true) {
+            self.msg = 'Event updated'
           }
-          xhr.send(null);     
-    
+          else {
+            self.msg = res
+          }
+          self.$parent.getEvents()
+        }
+      }
+      xhr.send(json)
     },
-    isUserOwner:function(){
-      if(this.user.id == this.event.u_id){
+    remove: function() {
+      var self = this
+      self.msg = ''
+      var xhr = new XMLHttpRequest();
+      var url = getUrl() + 'events/id/' + self.event.id + '/from/' + self.eventStartPoint.getTime() + '/user/' + self.user.id
+      if (self.aplyToRec) {
+        url += '/all/true'
+      }
+      xhr.open("DELETE", url, true);
+      xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+      xhr.setRequestHeader("Authorization", "Basic " + btoa(self.user.id + ":" + self.user.hash));
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState != 4) return
+        if (xhr.status != 200) {
+          alert(xhr.status + ': ' + xhr.statusText)
+        } else {
+          var res = JSON.parse(xhr.responseText)
+          if (res) {
+            self.msg = 'Deleted'
+          }
+        }
+        self.$parent.getEvents()
+        self.isDeleted = true
+      }
+      xhr.send(null);
+    },
+    isUserOwner: function() {
+      if (this.user.id == this.event.u_id) {
         this.isOwner = true
       }
     },
-    isUserAdmin: function (){
-      if(this.user.id_role == ADMIN){
+    isUserAdmin: function() {
+      if (this.user.id_role == ADMIN) {
         this.isAdmin = true
       }
     },
-      getUsers: function(){
+    getUsers: function() {
       var self = this
-        var xhr = new XMLHttpRequest()
-        if(self.user.id_role == ADMIN){
-          xhr.open('GET', getUrl()+'users/', true)
-        xhr.setRequestHeader("Authorization", "Basic " + btoa(self.user.id+":"+self.user.hash));        
-          xhr.onreadystatechange = function() {
-            if (xhr.readyState != 4) return
-              if (xhr.status != 200) {
-                alert(xhr.status + ': ' + xhr.statusText)
-              } else {
-                var res = JSON.parse(xhr.responseText)
-                if(res){
-                  self.employees = res
-                }else{
-                  self.employees = []
-                  self.msg = 'No users Found'
-                }
-              }
+      var xhr = new XMLHttpRequest()
+      if (self.user.id_role == ADMIN) {
+        xhr.open('GET', getUrl() + 'users/', true)
+        xhr.setRequestHeader("Authorization", "Basic " + btoa(self.user.id + ":" + self.user.hash));
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState != 4) return
+          if (xhr.status != 200) {
+            alert(xhr.status + ': ' + xhr.statusText)
+          } else {
+            var res = JSON.parse(xhr.responseText)
+            if (res) {
+              self.employees = res
+            } else {
+              self.employees = []
+              self.msg = 'No users Found'
+              self.isDeleted = true
+            }
+          }
         }
         xhr.send();
-      }else{
-        self.employees = [{id:self.event.u_id, name: self.event.u_name}]
+      } else {
+        self.employees = [{ id: self.event.u_id, name: self.event.u_name }]
       }
     },
-    getParametres: function(){
+    getParametres: function() {
       var self = this
       self.currDate = new Date()
       self.selectedUser = self.event.u_id
@@ -261,94 +248,85 @@ export default {
       var tmpE = new Date(self.event.end)
       self.eventStartPoint = tmpS
 
-      if(self.timeFormat == '24'){
+      if (self.timeFormat == '24') {
         self.startH = tmpS.getHours()
         self.endH = tmpE.getHours()
-      }else{
-        if(tmpS.getHours() >= 12){
-          self.modeStart = 'PM'  
-          if(tmpS.getHours() == 12){self.startH = tmpS.getHours()}  
-          else{      
-          self.startH = tmpS.getHours()-12}
-        }else{
-          self.modeStart = 'AM'          
-          self.startH = tmpS.getHours()          
+      } else {
+        if (tmpS.getHours() >= 12) {
+          self.modeStart = 'PM'
+          if (tmpS.getHours() == 12) { self.startH = tmpS.getHours() }
+          else {
+            self.startH = tmpS.getHours() - 12
+          }
+        } else {
+          self.modeStart = 'AM'
+          self.startH = tmpS.getHours()
         }
-        if(tmpE.getHours() >= 12){
+        if (tmpE.getHours() >= 12) {
           self.modeEnd = 'PM'
-          if(tmpE.getHours() == 12){self.endH = tmpE.getHours()}  
-          else{        
-          self.endH = tmpE.getHours()-12}
-        }else{
-           self.modeEnd = 'AM'          
-          self.endH = tmpE.getHours()          
+          if (tmpE.getHours() == 12) { self.endH = tmpE.getHours() }
+          else {
+            self.endH = tmpE.getHours() - 12
+          }
+        } else {
+          self.modeEnd = 'AM'
+          self.endH = tmpE.getHours()
         }
-        
+
       }
-
-      
-
-      if(tmpS.getMinutes() == '0'){
+      if (tmpS.getMinutes() == '0') {
         self.startM = '00'
-      }else{
+      } else {
         self.startM = tmpS.getMinutes()
       }
-      if(tmpE.getMinutes() == '0'){
+      if (tmpE.getMinutes() == '0') {
         self.endM = '00'
-      }else{
+      } else {
         self.endM = tmpE.getMinutes()
       }
     },
-    isReccuring: function(){
+    isReccuring: function() {
       var self = this
-      if(!self.isAdmin && !self.isOwner){
+      if (!self.isAdmin && !self.isOwner) {
         return
       }
-        var xhr = new XMLHttpRequest()
-        xhr.open('GET', getUrl()+'events/id/'+self.event.id+'/count/true/user/'+self.user.id, true)
-        xhr.setRequestHeader("Authorization", "Basic " + btoa(self.user.id+":"+self.user.hash));        
-          xhr.onreadystatechange = function() {
-            if (xhr.readyState != 4) return
-              if (xhr.status != 200) {
-                alert(xhr.status + ': ' + xhr.statusText)
-              } else {
-                var res = JSON.parse(xhr.responseText)
-                if(res > 1){
-                  self.isRecc = true
-                }
-              }
+      var xhr = new XMLHttpRequest()
+      xhr.open('GET', getUrl() + 'events/id/' + self.event.id + '/count/true/user/' + self.user.id, true)
+      xhr.setRequestHeader("Authorization", "Basic " + btoa(self.user.id + ":" + self.user.hash));
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState != 4) return
+        if (xhr.status != 200) {
+          alert(xhr.status + ': ' + xhr.statusText)
+        } else {
+          var res = JSON.parse(xhr.responseText)
+          if (res > 1) {
+            self.isRecc = true
+          }
         }
-        xhr.send();      
+      }
+      xhr.send();
     }
   },
-  computed:{
-    //   hoursSelector(){
-    //   var self = this
-    //     var hours = []
-    //       for(var i=8;i<=20;i++){
-    //         hours.push({value:i, title:i})
-    //     }
-    //     return hours
-    // },
-    hoursSelector(){
+  computed: {
+    hoursSelector() {
       var self = this
-        var hours = []
-        if(self.timeFormat == '12'){
-          for(var i=1;i<=12;i++){
-            hours.push({value:i, title:i})
-          }
-        }else{
-          for(var i=8;i<=20;i++){
-            hours.push({value:i, title:i})
-          }        
+      var hours = []
+      if (self.timeFormat == '12') {
+        for (var i = 1; i <= 12; i++) {
+          hours.push({ value: i, title: i })
         }
-        return hours
+      } else {
+        for (var i = 8; i <= 20; i++) {
+          hours.push({ value: i, title: i })
+        }
+      }
+      return hours
     },
-    minutesSelector(){
+    minutesSelector() {
       var self = this
       var minutes = []
-      self.minutes.forEach(function(m){
-        minutes.push({value:m, title:m})
+      self.minutes.forEach(function(m) {
+        minutes.push({ value: m, title: m })
       })
       return minutes
     }
@@ -356,9 +334,9 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h1, h2 {
+h1,
+h2 {
   font-weight: normal;
 }
 
@@ -376,7 +354,7 @@ a {
   color: #42b983;
 }
 
-.modal{
+.modal {
   position: fixed;
   z-index: 9998;
   top: 0;
@@ -392,6 +370,7 @@ a {
   display: table-cell;
   vertical-align: middle;
 }
+
 .butt-act button {
   margin-left: 10px;
   margin-right: 10px;
@@ -399,7 +378,7 @@ a {
 
 .modal-container {
   width: 500px;
-  margin: 50% 50% 50% 90% ;
+  margin: 10% 33%;
   padding: 20px 30px;
   background-color: #F0F0F0;
   border-radius: 2px;
@@ -420,15 +399,6 @@ a {
 .modal-default-button {
   float: right;
 }
-
-/*
- * The following styles are auto-applied to elements with
- * transition="modal" when their visibility is toggled
- * by Vue.js.
- *
- * You can easily play with the modal transition by editing
- * these styles.
- */
 
 .modal-enter {
   opacity: 0;

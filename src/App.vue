@@ -13,31 +13,26 @@ export default {
 <style>
 .clearfix:before,
 .clearfix:after {
-	content:'';
-	display:table;
+  content: '';
+  display: table;
 }
+
 .clearfix:after {
-	clear:both;
+  clear: both;
 }
-body{
+
+body {
   width: 1100 px;
-  margin:0 auto;
-   background: #F0F0F0;
-   
-   
+  margin: 0 auto;
+  background: #F0F0F0;
 }
+
 #app {
-  /* font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale; */
   text-align: center;
- 
   height: 100%;
-  /* color: #2c3e50; */
-
-
 }
-.link{
+
+.link {
   cursor: pointer;
 }
 </style>

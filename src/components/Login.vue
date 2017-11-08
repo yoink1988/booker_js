@@ -1,7 +1,7 @@
 <template>
   <div class="container-flide auth row">
-      <div id="auth-form" class="col-md-offset-4 col-md-5" style="width:400px">
-        <form role="form" class="container-for">
+    <div id="auth-form" class="col-md-offset-4 col-md-5" style="width:400px">
+      <form role="form" class="container-for">
         <div class="form-group">
           <label for="exampleInputEmail1">Email</label>
           <input v-model="email" type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">
@@ -11,11 +11,10 @@
           <input v-model="pass" type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
         </div>
         <button @click="login()" class="btn btn-default">Submit</button>
-            <p style="padding:10px">{{msg}}</p>
+        <p style="padding:10px">{{msg}}</p>
       </form>
-      </div>
+    </div>
   </div>
-
 </template>
 
 <script>
@@ -70,15 +69,16 @@ export default {
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .auth {
-  background: #B4B4B4;
+  background: #F0F0F0;
 }
+
 .container-for {
   background: #F0F0F0;
   padding: 30px;
 }
+
 h1,
 h2 {
   font-weight: normal;
@@ -104,7 +104,6 @@ a {
 }
 
 #auth-form {
-  /* background-color: #fce3c7; */
   padding: 30px;
 }
 </style>

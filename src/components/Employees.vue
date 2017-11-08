@@ -1,11 +1,17 @@
 <template>
   <div class="employees">
     <div v-if="content == 'list'">
-      <p><router-link to='/'>Back to Calendar</router-link></p>
-      <p><a class="link" @click="setContent('add')">Add new employee</a></p>
+      <p>
+        <router-link to='/'>Back to Calendar</router-link>
+      </p>
+      <p>
+        <a class="link" @click="setContent('add')">Add new employee</a>
+      </p>
     </div>
     <div v-else>
-      <p><a class="link" @click="setContent('list')">Back to Emploees list</a></p>
+      <p>
+        <a class="link" @click="setContent('list')">Back to Emploees list</a>
+      </p>
     </div>
     <div v-if="content == 'add'">
       <add-section :user="user"></add-section>
@@ -37,15 +43,13 @@
           </table>
         </div>
       </div>
-
       <div v-if="!employees">
       </div>
-        {{msg}}
+      {{msg}}
     </div>
     <div v-if="content == 'remove'">
       <remove-section :emp="empToRemove" :user="user"></remove-section>
     </div>
-
   </div>
 </template>
 
@@ -55,90 +59,85 @@ import EditEmployee from './EditEmployee.vue'
 import RemoveEmployee from './RemoveEmployee.vue'
 export default {
   name: 'Employees',
-  data () {
+  data() {
     return {
-      employees:[],
-      user:{},
+      employees: [],
+      user: {},
       msg: '',
       content: 'list',
-      employeeToEdit:{},
+      employeeToEdit: {},
       empToRemove: {}
     }
   },
-  created(){
+  created() {
     this.getStorageData()
     this.getEmployees()
   },
-  components:{
-    'add-section' : AddEmployee,
-    'edit-section' : EditEmployee,
-    'remove-section' : RemoveEmployee
+  components: {
+    'add-section': AddEmployee,
+    'edit-section': EditEmployee,
+    'remove-section': RemoveEmployee
   },
-  methods:{
-     getStorageData: function(){
-        var self = this
-        if(localStorage['user']){
-         self.user = JSON.parse(localStorage['user'])
-         self.checkAuth(self.user.id, self.user.hash)
-        }else{
-          self.$router.push('/')
-        }
-      },
-    setContent: function(content){
+  methods: {
+    getStorageData: function() {
+      var self = this
+      if (localStorage['user']) {
+        self.user = JSON.parse(localStorage['user'])
+        self.checkAuth(self.user.id, self.user.hash)
+      } else {
+        self.$router.push('/')
+      }
+    },
+    setContent: function(content) {
       var self = this
       self.content = content
     },
-    checkAuth: function(id, hash){
+    checkAuth: function(id, hash) {
       var self = this
       var xhr = new XMLHttpRequest()
-          xhr.open("GET", getUrl()+'auth/', true)
-          xhr.setRequestHeader("Authorization", "Basic " + btoa(id+":"+hash));
-          xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState != 4) return
-                  if (xhr.status != 200) {
-                  } else{
-                   var res = JSON.parse(xhr.responseText)
-                   if(!res){
-                     self.$router.push('/')
-                   }
-                   else{
-                    //getUserData
-                   }
-              }
-            }
-          xhr.send()        
-      },
-    getEmployees: function(){
-      var self = this
-        var xhr = new XMLHttpRequest()
-        xhr.open('GET', getUrl()+'users/', true)
-        xhr.setRequestHeader("Authorization", "Basic " + btoa(self.user.id+":"+self.user.hash));        
-          xhr.onreadystatechange = function() {
-            if (xhr.readyState != 4) return
-              if (xhr.status != 200) {
-                alert(xhr.status + ': ' + xhr.statusText)
-              } else {
-                var res = JSON.parse(xhr.responseText)
-                if(res){
-                  self.employees = res
-                  console.log(self.employees)
-                }else{
-                  self.employees = []
-                  self.msg = 'No users Found'
-                }
-              }
+      xhr.open("GET", getUrl() + 'auth/', true)
+      xhr.setRequestHeader("Authorization", "Basic " + btoa(id + ":" + hash));
+      xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState != 4) return
+        if (xhr.status != 200) {
+        } else {
+          var res = JSON.parse(xhr.responseText)
+          if (!res) {
+            self.$router.push('/')
+          }
         }
-        xhr.send();
-    }, 
-    edit: function(employee){
+      }
+      xhr.send()
+    },
+    getEmployees: function() {
       var self = this
-      console.log(employee)
+      var xhr = new XMLHttpRequest()
+      xhr.open('GET', getUrl() + 'users/', true)
+      xhr.setRequestHeader("Authorization", "Basic " + btoa(self.user.id + ":" + self.user.hash));
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState != 4) return
+        if (xhr.status != 200) {
+          alert(xhr.status + ': ' + xhr.statusText)
+        } else {
+          var res = JSON.parse(xhr.responseText)
+          if (res) {
+            self.employees = res
+          } else {
+            self.employees = []
+            self.msg = 'No users Found'
+          }
+        }
+      }
+      xhr.send();
+    },
+    edit: function(employee) {
+      var self = this
       self.employeeToEdit = employee
       self.content = 'edit'
-      
+
     },
-    showRemove: function(emp){
+    showRemove: function(emp) {
       var self = this
       self.empToRemove = emp
       self.setContent('remove')
@@ -149,12 +148,13 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .employees p {
   margin-top: 20px;
 }
-h1, h2 {
+
+h1,
+h2 {
   font-weight: normal;
 }
 
@@ -172,11 +172,11 @@ a {
   color: #42b983;
 }
 
-.row{
+.row {
   margin: auto;
 }
 
-.content{
+.content {
   width: 800px;
   margin: 30px auto;
 }

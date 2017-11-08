@@ -1,62 +1,78 @@
 <template>
-<div class="container-fluide">
-  <div class="row home clearfix">
-    <button v-if="user.id" @click="logOut()" class="btn btn col-md-1 switch">Log Out</button>
-    <div v-if="content == ''">
-      <login-section></login-section>
+  <div class="container-fluide">
+    <div class="row home clearfix">
+      <button v-if="user.id" @click="logOut()" class="btn btn col-md-1 switch">Log Out</button>
+      <div v-if="content == ''">
+        <login-section></login-section>
+      </div>
+      <div @reload="getEvents" v-if="content == 'calendar'" class="col-md-12">
+        <div v-if="user.id_role == 2">
+          <router-link to="/employees">Employee List</router-link>
+        </div>
+        <div class="row">
+          <ul>
+            <li v-for="room in rooms">
+              <a class="link" @click="setActiveRoom(room.id)">{{room.name}}</a>
+            </li>
+          </ul>
+        </div>
+        <div v-if="activeRoomId" class="row">
+          <span class="active-room">{{rooms[activeRoomId-1].name}}</span>
+          <p>
+            <a class="link" @click="bookIt()">Book It!</a>
+          </p>
+        </div>
+        <div class="calendar col cal-block">
+          <a class="link" style="float:right;margin:15px;" @click="setWeekFirstDay()">WeekFromSunday</a>
+          <a class="link" style="float:right;margin:15px;" @click="setTimeFormat()">Change Time Format</a>
+          <table class="table table-bordered table-class">
+            <thead>
+              <tr>
+                <td colspan="2" @click="monthMinus()">‹</td>
+                <td colspan="3">{{months_en[currMonth-1]}} {{currYear}}</td>
+                <td colspan="2" @click="monthPlus()">›</td>
+              </tr>
+            </thead>
+            <tbody class="table-body">
+              <tr v-if="firstDayMonday" class="header-table">
+                <td>Monday</td>
+                <td>Tuesday</td>
+                <td>Wednesday</td>
+                <td>Thursday</td>
+                <td>Friday</td>
+                <td>Saturday</td>
+                <td>Sunday</td>
+              </tr>
+              <tr v-if="!firstDayMonday" class="header-table">
+                <td>Sunday</td>
+                <td>Monday</td>
+                <td>Tuesday</td>
+                <td>Wednesday</td>
+                <td>Thursday</td>
+                <td>Friday</td>
+                <td>Saturday</td>
+              </tr>
+              <tr v-for="row in calendarToDraw">
+                <td v-for="day in row">
+                  <span v-if="day.length > 1">{{day[0]}}</span>
+                  <p v-for="event in day[1]">
+                    <a @click="editEvent(event)" class="link">{{event.timeString}}</a>
+                  </p>
+                  <span v-if="day.length == 1">{{day[0]}}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div v-if="content == 'bookit'">
+        <bookit-section :user="user" :idRoom="activeRoomId" :timeFormat="timeFormat"></bookit-section>
+      </div>
+      <div v-if="activeEvent">
+        <modal @close="activeEvent = false" :event="activeEvent" :user="user" :timeFormat="timeFormat"></modal>
+      </div>
     </div>
-
-  <div @reload="getEvents"  v-if="content == 'calendar'" class="col-md-12">  
-    <div v-if="user.id_role == 2">
-      <router-link to="/employees">Employee List</router-link>
-    </div>
-    <div class="row">
-      <ul>
-        <li v-for="room in rooms"><a class="link" @click="setActiveRoom(room.id)">{{room.name}}</a></li>
-      </ul>
-    </div>
-    <div v-if="activeRoomId" class="row">
-      <span class="active-room">{{rooms[activeRoomId-1].name}}</span>
-      <p><a class="link" @click="bookIt()">Book It!</a></p>
-    </div>
-    <div class="calendar col cal-block">
-    <a class="link" style="float:right;margin:15px;" @click="setWeekFirstDay()" >WeekFromSunday</a>
-    <a class="link" style="float:right;margin:15px;" @click="setTimeFormat()" >Change Time Format</a>
-      <table class="table table-bordered table-class">
-        <thead>
-          <tr>
-          <td colspan="2" @click="monthMinus()">‹</td>
-          <td colspan="3" >{{months_en[currMonth-1]}} {{currYear}}</td>
-          <td colspan="2"  @click="monthPlus()">›</td>
-          </tr>
-        </thead>
-        <tbody class="table-body">
-           
-          <tr v-if="firstDayMonday" class="header-table"><td>Monday</td><td>Tuesday</td><td>Wednesday</td><td>Thursday</td><td>Friday</td><td>Saturday</td><td>Sunday</td></tr>
-          <tr v-if="!firstDayMonday"class="header-table" ><td>Sunday</td><td>Monday</td><td>Tuesday</td><td>Wednesday</td><td>Thursday</td><td>Friday</td><td>Saturday</td></tr>
-
-          
-          
-          <tr v-for="row in calendarToDraw">
-              <td v-for="day in row">
-                <span v-if="day.length > 1">{{day[0]}}</span>
-                <p v-for="event in day[1]"> <a @click="editEvent(event)" class="link">{{event.timeString}}</a> </p>
-                <span  v-if="day.length == 1">{{day[0]}}</span>
-              </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  
   </div>
-  <div v-if="content == 'bookit'">
-      <bookit-section :user="user" :idRoom="activeRoomId" :timeFormat="timeFormat"></bookit-section>
-  </div>
- <div v-if="activeEvent">
-  <modal @close="activeEvent = false" :event="activeEvent" :user="user" :timeFormat="timeFormat"></modal>
- </div>
-</div>
-</div>
 </template>
 
 <script>
@@ -200,7 +216,6 @@ export default {
       var mon = month - 1;
       var d = new Date(year, mon);
       self.items[0] = [];
-
       for (var i = 0; i < self.getDay(d); i++) {
         self.items[0].push({});
       }
@@ -211,7 +226,6 @@ export default {
           row++;
           self.items[row] = [];
         }
-
         d.setDate(d.getDate() + 1);
       }
       self.refreshed = false;
@@ -289,12 +303,12 @@ export default {
       xhr.open(
         "GET",
         getUrl() +
-          "events/year/" +
-          self.currYear +
-          "/month/" +
-          self.currMonth +
-          "/room/" +
-          self.activeRoomId,
+        "events/year/" +
+        self.currYear +
+        "/month/" +
+        self.currMonth +
+        "/room/" +
+        self.activeRoomId,
         true
       );
       xhr.onreadystatechange = function() {
@@ -341,19 +355,16 @@ export default {
                   var st_m = new Date(ev.start).getMinutes();
                   var en_h = new Date(ev.end).getHours();
                   var en_m = new Date(ev.end).getMinutes();
-
                   if (st_m === 0) {
                     st_m = "00";
                   } else {
                     st_m = "30";
                   }
-
                   if (en_m === 0) {
                     var en_m = "00";
                   } else {
                     var en_m = "30";
                   }
-
                   if (self.timeFormat == "24") {
                     ev.timeString =
                       st_h + ":" + st_m + " - " + en_h + ":" + en_m;
@@ -390,7 +401,6 @@ export default {
             }
           });
         });
-
         self.refreshed = true;
       }
       return calendar;
@@ -399,23 +409,21 @@ export default {
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .home {
   background: #F0F0F0;
 }
+
 .switch {
-  float:right;
+  float: right;
   margin-right: 30px;
   margin-top: 30px;
 }
-.table-body td{
-  width: 195px;
-  height: 65px;
+
+.header-table td {
+  width: 350px;
 }
-.header-table td{
-   width: 195px;
-}
+
 h1,
 h2 {
   font-weight: normal;
@@ -438,14 +446,16 @@ a {
 .calendar {
   margin: 0px auto;
 }
+
 .cal-block {
-  width: 1000px;
+  width: 1200px;
 }
+
 .link {
   cursor: pointer;
 }
+
 .active-room {
   font-size: 18px;
-  
 }
 </style>
