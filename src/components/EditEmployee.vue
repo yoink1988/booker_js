@@ -75,7 +75,7 @@ export default {
 }
 
 #regform{
-  /* background-color: #fce3c7; */
+  /* background-color: #9B9B9B; */
   padding: 30px;
 }
 

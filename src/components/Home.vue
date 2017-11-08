@@ -1,12 +1,12 @@
 <template>
-  <div class="row">
-    <button v-if="user.id" @click="logOut()" class="switch">Log Out</button>
-
+<div class="container-fluide">
+  <div class="row home clearfix">
+    <button v-if="user.id" @click="logOut()" class="btn btn col-md-1 switch">Log Out</button>
     <div v-if="content == ''">
       <login-section></login-section>
     </div>
 
-  <div @reload="getEvents"  v-if="content == 'calendar'">  
+  <div @reload="getEvents"  v-if="content == 'calendar'" class="col-md-12">  
     <div v-if="user.id_role == 2">
       <router-link to="/employees">Employee List</router-link>
     </div>
@@ -22,18 +22,21 @@
     <div class="calendar col cal-block">
     <a class="link" style="float:right;margin:15px;" @click="setWeekFirstDay()" >WeekFromSunday</a>
     <a class="link" style="float:right;margin:15px;" @click="setTimeFormat()" >Change Time Format</a>
-      <table class="table table-bordered">
+      <table class="table table-bordered table-class">
         <thead>
           <tr>
-          <td @click="monthMinus()">‹</td>
-          <td colspan="5">{{months_en[currMonth-1]}} {{currYear}}</td>
-            <td @click="monthPlus()">›</td>
+          <td colspan="2" @click="monthMinus()">‹</td>
+          <td colspan="3" >{{months_en[currMonth-1]}} {{currYear}}</td>
+          <td colspan="2"  @click="monthPlus()">›</td>
           </tr>
         </thead>
-        <tbody>
-          <tr v-if="firstDayMonday"><td>Monday</td><td>Tuesday</td><td>Wednesday</td><td>Thursday</td><td>Friday</td><td>Saturday</td><td>Sunday</td></tr>
-          <tr v-if="!firstDayMonday"><td>Sunday</td><td>Monday</td><td>Tuesday</td><td>Wednesday</td><td>Thursday</td><td>Friday</td><td>Saturday</td></tr>
+        <tbody class="table-body">
+           
+          <tr v-if="firstDayMonday" class="header-table"><td>Monday</td><td>Tuesday</td><td>Wednesday</td><td>Thursday</td><td>Friday</td><td>Saturday</td><td>Sunday</td></tr>
+          <tr v-if="!firstDayMonday"class="header-table" ><td>Sunday</td><td>Monday</td><td>Tuesday</td><td>Wednesday</td><td>Thursday</td><td>Friday</td><td>Saturday</td></tr>
 
+          
+          
           <tr v-for="row in calendarToDraw">
               <td v-for="day in row">
                 <span v-if="day.length > 1">{{day[0]}}</span>
@@ -53,7 +56,7 @@
   <modal @close="activeEvent = false" :event="activeEvent" :user="user" :timeFormat="timeFormat"></modal>
  </div>
 </div>
-
+</div>
 </template>
 
 <script>
@@ -398,6 +401,21 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.home {
+  background: #F0F0F0;
+}
+.switch {
+  float:right;
+  margin-right: 30px;
+  margin-top: 30px;
+}
+.table-body td{
+  width: 195px;
+  height: 65px;
+}
+.header-table td{
+   width: 195px;
+}
 h1,
 h2 {
   font-weight: normal;
@@ -418,7 +436,7 @@ a {
 }
 
 .calendar {
-  margin: 50px auto;
+  margin: 0px auto;
 }
 .cal-block {
   width: 1000px;
@@ -427,6 +445,7 @@ a {
   cursor: pointer;
 }
 .active-room {
-  font-size: 130%;
+  font-size: 18px;
+  
 }
 </style>

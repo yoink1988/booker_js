@@ -8,7 +8,7 @@
               
                 <slot name="header">
                   <!-- Event Details{{eventId}} -->
-                  Event Details 
+                  <span style="font-weight:bold; font-size:15px;">Event Details </span>
                 </slot>
 
 
@@ -41,7 +41,7 @@
               <div v-if="((currDate > eventStartPoint)) || (!isOwner && !isAdmin) || isDeleted">
                 Time: <span>{{startH}}:{{endM}} - {{endH}}:{{endM}}</span>
               </div>
-                <div v-if="( (currDate < eventStartPoint) && (isOwner || isAdmin) && (!isDeleted))">
+                <div style="margin-top:10px;margin-bottom:10px;" v-if="( (currDate < eventStartPoint) && (isOwner || isAdmin) && (!isDeleted))">
                   Notes: <textarea v-model="event.descr"></textarea>
                 </div>
                 <div v-if="((!isOwner && !isAdmin) || (currDate > eventStartPoint) || isDeleted)">
@@ -59,25 +59,27 @@
               <p></p>
               <p> PubDate: {{event.submit}}</p>
 
+                 
+              
               <div v-if="( (currDate < eventStartPoint) && (isOwner || isAdmin) && (!isDeleted))">
                 <div v-if="isRecc">
                   <input v-model="aplyToRec" type="checkbox">Apply to occurencies, (starts from this event)
                 </div>
-                <div>
-                  <button @click="update()">update</button>
-                  <button @click="remove()">delete</button>
-                </div>  
+                <div class="butt-act"> 
+                  
+                  <button class="btn btn" @click="update()">update</button>
+                  <button class="btn btn" @click="remove()">delete</button>
+                </div> 
+                 
               </div>
+               <button class=" btn btn col-xs-offset-10" @click="$emit('close')"> OK </button>
+              
                   <div v-if="msg">
                     <p v-if="!Array.isArray(msg)">{{msg}}</p>
                     <p v-if="typeof(msg) == 'object'" v-for="mess in msg">{{mess}}</p>
                   </div>
+                  
             </slot>
-
-
-                <slot name="footer">
-                  <button class="modal-default-button" @click="$emit('close')"> OK </button>
-                </slot>
             </div>
           </div>
         </div>
@@ -390,12 +392,16 @@ a {
   display: table-cell;
   vertical-align: middle;
 }
+.butt-act button {
+  margin-left: 10px;
+  margin-right: 10px;
+}
 
 .modal-container {
-  width: 800px;
-  margin: 200px 25%;
+  width: 500px;
+  margin: 50% 50% 50% 90% ;
   padding: 20px 30px;
-  background-color: #fff;
+  background-color: #F0F0F0;
   border-radius: 2px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, .33);
   transition: all .3s ease;
