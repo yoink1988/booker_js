@@ -31,6 +31,7 @@ export default {
                       var res = JSON.parse(xhr.responseText)
                       if(res){
                         self.msg = 'Deleted'
+                        self.$parent.getEmployees()
                       }
                       else{
                         self.msg = 'Fail'

@@ -1,6 +1,5 @@
 <template>
   <div class="book-it">
-        <!-- <a class="link" @click="changeTimeFormat()">TimeFormat</a> -->
         <a class="link" @click="$parent.content = 'calendar'">Back to Calendar</a>
     <div class="row">
       <div class="col form">
@@ -42,7 +41,7 @@
           </div>
           <div>
             <select v-model="timeStartM">
-              <!-- <option value="">MM</option> -->
+ 
               <option v-for="m in minutesSelector" :value="m.value">{{m.title}}</option>
             </select>
           </div>
@@ -63,7 +62,6 @@
         </div>
         <div>
           <select v-model="timeEndM">
-            <!-- <option value="">MM</option> -->
             <option v-for="m in minutesSelector" :value="m.value">{{m.title}}</option>
           </select>
         </div>
@@ -109,7 +107,6 @@
           <p v-if="!Array.isArray(msg)">{{msg}}</p>
           <p v-if="typeof(msg) == 'object'" v-for="mess in msg">{{mess}}</p>
           </div>
-        <!-- <button @click="test()" class="switch">Test</button> -->
   </div>
 </template>
 
@@ -120,7 +117,6 @@ export default {
   data () {
     return {
       msg:'',
-      // timeFormat: '12',
       duration: '',
       isReccuring: false,
       selectedRecurring:'weekly',
@@ -146,16 +142,6 @@ export default {
     }
   },
   methods:{
-    test: function(){
-      var self = this
-      var arr = []
-      arr.push('qwe')
-      var obj = {}
-      obj.test = arr
-
-      obj.test.push('sadas')
-      console.log(obj)
-    },
     submit:function(){
       var self = this
       self.msg = ''
@@ -164,7 +150,6 @@ export default {
       if(self.checkInputs()){
         var obj = {}
         obj.id_room = self.idRoom
-        // details = {}
         obj.details = {}
         obj.details.id_emp = self.userToBook
         obj.details.descr = self.descr
@@ -185,7 +170,6 @@ export default {
                   return
                 }
 
-        // obj.event = details
         if(self.isReccuring){
           var reccuring = {}
           reccuring.type = self.selectedRecurring
@@ -193,7 +177,6 @@ export default {
           obj.reccuring = reccuring
         }
 
-      // self.authMsg = ''
       var xhr = new XMLHttpRequest();
       var json = JSON.stringify(obj);
           xhr.open("POST", getUrl()+'events/', true)
@@ -286,7 +269,6 @@ export default {
                 var res = JSON.parse(xhr.responseText)
                 if(res){
                   self.employees = res
-                  // console.log(self.employees)
                 }else{
                   self.employees = []
                   self.msg = 'No users Found'
@@ -295,27 +277,11 @@ export default {
         }
         xhr.send();
     },
-    changeTimeFormat:function(){
-      var self = this
-      self.timeStartH = '';
-      self.timeEndH = '';
-      if(self.timeFormat == '12'){
-        self.timeFormat = '24'
-      }else{
-        self.timeFormat = '12'
-      }
-    },
-
   },
 
   created(){
     this.getEmployees()
   },
-  // watch:{
-  //   timeEndH(){
-  //     debugger
-  //   }
-  // },
   computed:{
     yearSelector(){
       var self = this

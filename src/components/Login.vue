@@ -13,7 +13,6 @@
       <button @click="login()" class="btn btn-default">Submit</button>
           <p style="padding:10px">{{msg}}</p>
     </form>
-    <router-link to="/home" :user="user">Home</router-link>
   </div>
   </div>
 

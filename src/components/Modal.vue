@@ -21,6 +21,11 @@
                 <select v-model="startM">
                   <option v-for="m in minutesSelector" :value="m.value">{{m.title}}</option>
                 </select>
+          <select v-if="timeFormat == '12'" v-model="modeStart">
+            <option :value="mode[0]">{{mode[0]}}</option>
+            <option :value="mode[1]">{{mode[1]}}</option>
+          </select>
+
                 -
                 <select v-model="endH">
                   <option v-for="h in hoursSelector" :value="h.value">{{h.title}}</option>
@@ -28,6 +33,10 @@
                 <select v-model="endM">
                   <option v-for="m in minutesSelector" :value="m.value">{{m.title}}</option>
                 </select>
+          <select v-if="timeFormat == '12'" v-model="modeEnd">
+            <option :value="mode[0]">{{mode[0]}}</option>
+            <option :value="mode[1]">{{mode[1]}}</option>
+          </select>                
               </div>
               <div v-if="((currDate > eventStartPoint)) || (!isOwner && !isAdmin) || isDeleted">
                 Time: <span>{{startH}}:{{endM}} - {{endH}}:{{endM}}</span>
@@ -79,10 +88,13 @@
 
 <script>
 export default {
-  props:['event', 'user'],
+  props:['event', 'user', 'timeFormat'],
   name: 'Modal',
   data () {
     return {
+      modeStart: '',
+      modeEnd: '',
+      mode:['AM', 'PM'],
       isRecc: false,
       aplyToRec: false,
       eventStartPoint: '',
@@ -112,9 +124,35 @@ export default {
       var self = this
       var data = {}
       var timeStart = new Date(self.event.start)
-      timeStart.setHours(self.startH, self.startM)
       var timeEnd = new Date(self.event.end)
-      timeEnd.setHours(self.endH, self.endM)
+      if(self.timeFormat =='24'){
+        timeStart.setHours(self.startH, self.startM)
+        timeEnd.setHours(self.endH, self.endM)
+      }
+      if(self.timeFormat =='12'){
+        if(self.modeStart == 'AM'){
+          timeStart.setHours(self.startH, self.startM)
+        }else{
+          if(self.startH == 12){
+            timeStart.setHours(self.endH, self.startM)
+          }else{
+            timeStart.setHours(+self.startH+12, self.startM)
+          }
+        }
+        if(self.modeEnd == 'AM'){
+
+          timeEnd.setHours(self.endH, self.endM)
+        }
+        if(self.modeEnd == 'PM'){
+          if(self.endH == 12){
+            timeEnd.setHours(self.endH, self.endM)
+          }else{
+            timeEnd.setHours(self.endH+12, self.endM)
+            // console.log(timeEnd)
+          }
+        }
+      }
+      
       data.id = self.event.id
       data.id_room = self.event.room_id
       var details = {}
@@ -166,7 +204,6 @@ export default {
                   if (xhr.status != 200) {
                         alert(xhr.status + ': ' + xhr.statusText)
                   } else {
-                    // console.log(xhr.responseText)
                       var res = JSON.parse(xhr.responseText)
                       if(res){
                         self.msg = 'Deleted'
@@ -222,8 +259,32 @@ export default {
       var tmpE = new Date(self.event.end)
       self.eventStartPoint = tmpS
 
-      self.startH = tmpS.getHours()
-      self.endH = tmpE.getHours()
+      if(self.timeFormat == '24'){
+        self.startH = tmpS.getHours()
+        self.endH = tmpE.getHours()
+      }else{
+        if(tmpS.getHours() >= 12){
+          self.modeStart = 'PM'  
+          if(tmpS.getHours() == 12){self.startH = tmpS.getHours()}  
+          else{      
+          self.startH = tmpS.getHours()-12}
+        }else{
+          self.modeStart = 'AM'          
+          self.startH = tmpS.getHours()          
+        }
+        if(tmpE.getHours() >= 12){
+          self.modeEnd = 'PM'
+          if(tmpE.getHours() == 12){self.endH = tmpE.getHours()}  
+          else{        
+          self.endH = tmpE.getHours()-12}
+        }else{
+           self.modeEnd = 'AM'          
+          self.endH = tmpE.getHours()          
+        }
+        
+      }
+
+      
 
       if(tmpS.getMinutes() == '0'){
         self.startM = '00'
@@ -259,15 +320,28 @@ export default {
     }
   },
   computed:{
-      hoursSelector(){
+    //   hoursSelector(){
+    //   var self = this
+    //     var hours = []
+    //       for(var i=8;i<=20;i++){
+    //         hours.push({value:i, title:i})
+    //     }
+    //     return hours
+    // },
+    hoursSelector(){
       var self = this
         var hours = []
+        if(self.timeFormat == '12'){
+          for(var i=1;i<=12;i++){
+            hours.push({value:i, title:i})
+          }
+        }else{
           for(var i=8;i<=20;i++){
             hours.push({value:i, title:i})
+          }        
         }
         return hours
     },
-
     minutesSelector(){
       var self = this
       var minutes = []
