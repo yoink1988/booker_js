@@ -1,7 +1,7 @@
 <template>
   <div class="remove-employee">
     <p> Are you sure you want to delete contact
-      <span>{{emp.name}}?</span>
+      <span><b>{{emp.name}}</b>?</span>
     </p>
     <button class="btn btn-default" @click="remove()">YES</button>
     <button @click="$parent.content = 'list'" class="btn btn-default">Back</button>

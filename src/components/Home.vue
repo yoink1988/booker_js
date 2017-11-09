@@ -7,30 +7,30 @@
       </div>
       <div @reload="getEvents" v-if="content == 'calendar'" class="col-md-12">
         <div v-if="user.id_role == 2">
-          <router-link to="/employees">Employee List</router-link>
+          <router-link to="/employees"><button class="btn ">Employee List</button></router-link>
         </div>
-        <div class="row">
+        <div style="margin-top:30px;" class="row">
           <ul>
             <li v-for="room in rooms">
-              <a class="link" @click="setActiveRoom(room.id)">{{room.name}}</a>
+              <a style="font-size:110%" class="link" @click="setActiveRoom(room.id)">{{room.name}}</a>
             </li>
           </ul>
         </div>
-        <div v-if="activeRoomId" class="row">
-          <span class="active-room">{{rooms[activeRoomId-1].name}}</span>
+        <div style="margin-top:20px;" v-if="activeRoomId" class="row">
+          <span class="active-room">{{activeRoomName}}</span>
           <p>
-            <a class="link" @click="bookIt()">Book It!</a>
+            <a style="font-size:120%" class="link" @click="bookIt()">Book It!</a>
           </p>
         </div>
         <div class="calendar col cal-block">
-          <a class="link" style="float:right;margin:15px;" @click="setWeekFirstDay()">WeekFromSunday</a>
+          <a class="link" style="float:right;margin:15px;" @click="setWeekFirstDay()">Calendar type</a>
           <a class="link" style="float:right;margin:15px;" @click="setTimeFormat()">Change Time Format</a>
           <table class="table table-bordered table-class">
             <thead>
               <tr>
-                <td colspan="2" @click="monthMinus()">‹</td>
+                <td colspan="2" @click="monthMinus()">&#9668</td>
                 <td colspan="3">{{months_en[currMonth-1]}} {{currYear}}</td>
-                <td colspan="2" @click="monthPlus()">›</td>
+                <td colspan="2" @click="monthPlus()">&#9658</td>
               </tr>
             </thead>
             <tbody class="table-body">
@@ -56,7 +56,7 @@
                 <td v-for="day in row">
                   <span v-if="day.length > 1">{{day[0]}}</span>
                   <p v-for="event in day[1]">
-                    <a @click="editEvent(event)" class="link">{{event.timeString}}</a>
+                    <a @click="editEvent(event)" class="link"><b>{{event.timeString}}</b></a>
                   </p>
                   <span v-if="day.length == 1">{{day[0]}}</span>
                 </td>
@@ -112,7 +112,8 @@ export default {
       isAdmin: false,
       timeFormat: "24",
       showModal: false,
-      activeEvent: null
+      activeEvent: null,
+      activeRoomName: ''
     };
   },
   components: {
@@ -289,7 +290,9 @@ export default {
           var res = JSON.parse(xhr.responseText);
           if (res) {
             self.rooms = res;
+
             self.setActiveRoom(self.rooms[0].id);
+                        // console.log(self.activeRoomId)
           } else {
             self.errMsg = "Rooms not found";
           }
@@ -330,6 +333,11 @@ export default {
     setActiveRoom: function(id) {
       var self = this;
       self.activeRoomId = id;
+      self.rooms.forEach(function(el){
+        if(el.id == id){
+          self.activeRoomName = el.name
+        }
+      })
       self.getEvents();
     }
   },
@@ -411,7 +419,7 @@ export default {
 
 <style scoped>
 .home {
-  background: #F0F0F0;
+  background: #e2e2e2;
 }
 
 .switch {
@@ -422,6 +430,9 @@ export default {
 
 .header-table td {
   width: 350px;
+}
+.table-body td{
+    height: 70px;
 }
 
 h1,
@@ -457,5 +468,6 @@ a {
 
 .active-room {
   font-size: 18px;
+  font-weight: bold;
 }
 </style>

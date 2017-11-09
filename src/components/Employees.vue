@@ -2,15 +2,15 @@
   <div class="employees">
     <div v-if="content == 'list'">
       <p>
-        <router-link to='/'>Back to Calendar</router-link>
+        <router-link to='/'><button class="btn btn"> Back to Calendar</button></router-link>
       </p>
       <p>
-        <a class="link" @click="setContent('add')">Add new employee</a>
+        <button class="btn btn" @click="setContent('add')">Add new employee</button>
       </p>
     </div>
     <div v-else>
       <p>
-        <a class="link" @click="setContent('list')">Back to Emploees list</a>
+        <button class="btn btn" @click="setContent('list')">Back to Emploees list</button>
       </p>
     </div>
     <div v-if="content == 'add'">

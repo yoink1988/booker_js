@@ -24,7 +24,8 @@ export default {
 body {
   width: 1100 px;
   margin: 0 auto;
-  background: #F0F0F0;
+  background: #e2e2e2;
+  font-size: 14px;
 }
 
 #app {

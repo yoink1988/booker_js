@@ -71,11 +71,11 @@ export default {
 
 <style scoped>
 .auth {
-  background: #F0F0F0;
+  background: #e2e2e2;
 }
 
 .container-for {
-  background: #F0F0F0;
+  background: #e2e2e2;
   padding: 30px;
 }
 
