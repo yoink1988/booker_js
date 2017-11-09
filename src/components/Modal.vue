@@ -1,9 +1,9 @@
 <template>
   <div class="modal">
     <transition name="modal">
-      <div class="modal-mask">
-        <div class="modal-wrapper">
-          <div class="modal-container">
+      <div class="modal-mask ">
+        <div class="modal-wrapper ">
+          <div class="modal-container text-center center-block">
             <slot name="header">
               <span style="font-weight:bold; font-size:15px;">Event Details </span>
             </slot>
@@ -378,7 +378,8 @@ a {
 
 .modal-container {
   width: 500px;
-  margin: 10% 33%;
+   margin: 10% 33%; 
+  display:block;
   padding: 20px 30px;
   background-color: #F0F0F0;
   border-radius: 2px;
